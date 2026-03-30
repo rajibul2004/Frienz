@@ -1,0 +1,26 @@
+import express from 'express';
+import { register, login, logout, sendResetOtp, resetPassword, onboard, verifyResetOtp } from '../controller/authController.js';
+import extractUserId from '../middleware/extractUerId.js'
+import attachUser from '../middleware/attachUser.js';
+
+const router = express.Router();
+
+router.post('/register', register);
+router.post('/login', login);
+router.post('/logout', logout);
+
+router.post('/send-reset-otp', sendResetOtp);
+router.post('/verify-reset-otp', verifyResetOtp);
+router.post('/reset-password', resetPassword);
+
+router.post('/update', extractUserId, attachUser, onboard);
+
+router.get('/me', extractUserId, attachUser, (req, res) => {
+    console.log(req.user);
+    res.status(200).json({
+        success: true,
+        user: req.user.select('-password -resetOtp -resetOtpExpAt')
+    });
+});
+
+export default router;

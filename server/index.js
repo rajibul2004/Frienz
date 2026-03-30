@@ -1,6 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/mongodb.js';
+import cookieParser from 'cookie-parser';
+
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
@@ -11,6 +14,9 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const app = express();
 connectDB();
 app.use(express.json({ limit: '10mb' }));
+app.use(cookieParser());
+
+app.use('/api/auth', authRoutes);
 
 
 app.listen(PORT, () => {
