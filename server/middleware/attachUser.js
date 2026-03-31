@@ -1,6 +1,6 @@
 import UserModel from "../models/userModel.js";
 
-const attachUser = async (req, res, next) => {.
+const attachUser = async (req, res, next) => {
     try {
         const userId = req.userId || req.body.userId;
 
