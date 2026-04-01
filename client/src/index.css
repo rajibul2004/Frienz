@@ -1,1 +1,44 @@
 @import "tailwindcss";
+
+@custom-variant forest (&:where(.forest, .forest *));
+@custom-variant synthwave (&:where(.synthwave, .synthwave *));
+@custom-variant midnight (&:where(.midnight, .midnight *));
+@custom-variant milky (&:where(.milky, .milky *));
+@custom-variant aqua (&:where(.aqua, .aqua *));
+@custom-variant luxury (&:where(.luxury, .luxury *));
+
+@layer base {
+  body {
+    @apply font-sans transition-colors duration-300;
+  }
+
+  /* FOREST THEME */
+  .forest body {
+    @apply bg-gradient-to-br from-green-950 via-emerald-900 to-teal-800 text-green-100;
+  }
+
+  /* SYNTHWAVE THEME */
+  .synthwave body {
+    @apply bg-linear-to-br from-indigo-900 via-purple-900 to-pink-900 text-pink-100;
+  }
+
+  /* DRACULA THEME */
+  .midnight body {
+    @apply bg-linear-to-br from-slate-950 via-gray-900 to-slate-800 text-gray-100;
+  }
+
+  /* AUTUMN THEME */
+  .milky body {
+    @apply bg-linear-to-br from-white via-blue-50 to-indigo-100 text-gray-800;
+  }
+
+  /* AQUA THEME */
+  .aqua body {
+    @apply bg-linear-to-br from-cyan-900 via-teal-800 to-blue-700 text-cyan-100;
+  }
+
+  /* LUXURY THEME */
+  .luxury body {
+    @apply bg-linear-to-br from-neutral-950 via-zinc-900 to-amber-700 text-amber-100;
+  }
+}

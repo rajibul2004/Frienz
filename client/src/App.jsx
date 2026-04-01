@@ -1,6 +1,7 @@
 import { useState,useEffect } from 'react';
 import './App.css'
 import axiosInstance from './lib/axios'
+import ThemeSelector from './components/common/ThemeSelector';
 function App() {
   const [response, setResponse] = useState(null);
 
@@ -19,9 +20,8 @@ function App() {
   }, []);
 
   return (
-    <div className='min-h-screen w-full flex flex-col bg-yellow-500 text-white items-center justify-center gap-4'>
-      <h1 className='text-4xl font-bold'>Freinz</h1>
-      <p className='text-lg'>Status: {response || 'Loading...'}</p>
+    <div className='min-h-screen w-full flex flex-col '>
+      <ThemeSelector/>
     </div>
   )
 }
