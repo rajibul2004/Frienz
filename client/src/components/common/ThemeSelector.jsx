@@ -68,7 +68,7 @@ const ThemeSelector = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl bg-gray-900/40 hover:bg-gray-800/40 border border-base-300 group"
+        className="relative p-2 rounded-xl cursor-pointer bg-gray-900/90 hover:bg-gray-800/90 milky:bg-gray-200 milky:hover:bg-gray-300 border  group"
         title="Change theme"
       >
         <Palette className="w-5 h-5 text-base-content/60 group-hover:text-base-content transition-all" />
@@ -93,7 +93,7 @@ const ThemeSelector = () => {
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               className="absolute right-0 mt-2 w-72 z-50"
             >
-              <div className="bg-gray-900/40 backdrop-blur-xl border border-base-300 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="bg-gray-900 milky:bg-white backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden">
                 <div className="p-4 border-b border-base-300">
                   <h3 className="text-sm font-semibold text-base-content flex items-center gap-2">
                     <Palette className="w-4 h-4 text-primary" />
@@ -119,7 +119,7 @@ const ThemeSelector = () => {
                           className={`relative p-3 rounded-xl transition-all duration-300 group
                             ${
                               isActive
-                                ? `bg-gradient-to-r ${t.color} text-white shadow-lg`
+                                ? `bg-linear-to-r ${t.color} text-white milky:text-gray-800 shadow-lg`
                                 : "bg-base-100 hover:bg-base-300 text-base-content"
                             }
                             border ${isActive ? "border-transparent" : "border-base-300"}

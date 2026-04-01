@@ -16,10 +16,9 @@ router.post('/reset-password', resetPassword);
 router.post('/update', extractUserId, attachUser, onboard);
 
 router.get('/me', extractUserId, attachUser, (req, res) => {
-    console.log(req.user);
     res.status(200).json({
         success: true,
-        user: req.user.select('-password -resetOtp -resetOtpExpAt')
+        user: req.user
     });
 });
 

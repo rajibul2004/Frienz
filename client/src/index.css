@@ -42,3 +42,52 @@
     @apply bg-linear-to-br from-neutral-950 via-zinc-900 to-amber-700 text-amber-100;
   }
 }
+
+@layer components {
+  .Input {
+    @apply bg-white/5 milky:bg-gray-800/5 border border-white/10 milky:border-gray-800/10 rounded-xl text-white milky:text-gray-800 placeholder-white/40 milky:placeholder-gray-800/40 focus:outline-none forest:focus:border-green-500 synthwave:focus:border-indigo-500 midnight:focus:border-gray-500  milky:focus:border-slate-500 aqua:focus:border-emerald-500 luxury:focus:border-zinc-500 transition-colors;
+  }
+
+  .btn-primary-theme {
+    @apply bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer;
+  }
+  .forest .btn-primary-theme {
+    @apply from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40;
+  }
+  .midnight .btn-primary-theme {
+    @apply from-slate-500 to-gray-600 shadow-lg shadow-slate-500/25 hover:shadow-slate-500/40;
+  }
+  .milky .btn-primary-theme {
+    @apply from-slate-300 to-gray-300 shadow-lg shadow-gray-500/25 hover:shadow-gray-500/40 text-gray-800;
+  }
+  .aqua .btn-primary-theme {
+    @apply from-cyan-500 to-teal-600 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40;
+  }
+  .luxury .btn-primary-theme {
+    @apply from-amber-400 to-yellow-500 shadow-lg shadow-amber-400/25 hover:shadow-amber-400/40;
+  }
+
+  .link-text {
+    @apply cursor-pointer text-indigo-400 hover:text-indigo-300 forest:text-emerald-400 forest:hover:text-emerald-300 midnight:text-gray-200 midnight:hover:text-slate-300 milky:text-gray-600 milky:hover:text-slate-500 aqua:text-cyan-400 aqua:hover:text-cyan-300 luxury:text-amber-400 luxury:hover:text-amber-300 transition-colors;
+  }
+
+  .active {
+    @apply bg-gradient-to-r from-indigo-500 to-purple-500  shadow-indigo-500/25;
+  }
+  .forest .active {
+    @apply bg-gradient-to-r from-emerald-500 to-green-600 shadow-emerald-500/25;
+  }
+  .midnight .active {
+    @apply bg-gradient-to-r from-gray-700 to-slate-700 shadow-violet-500/25;
+  }
+  .milky .active {
+    @apply bg-gradient-to-r from-gray-500 to-slate-600 shadow-slate-500/25;
+  }
+  .aqua .active {
+    @apply bg-gradient-to-r from-cyan-500 to-teal-600 shadow-cyan-500/25;
+  }
+  .luxury .active {
+    @apply bg-gradient-to-r from-amber-400 to-yellow-500 shadow-amber-400/25;
+  }
+
+}

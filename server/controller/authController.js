@@ -124,6 +124,7 @@ const login = async (req, res) => {
             }
         });
     } catch (err) {
+        console.log(err.message);
         res.status(500).json({
             success: false,
             message: err.message
@@ -390,3 +391,8 @@ const onboard = async (req, res) => {
 export {
     register, login, logout, sendResetOtp, verifyResetOtp, resetPassword, onboard
 };
+
+
+
+
+

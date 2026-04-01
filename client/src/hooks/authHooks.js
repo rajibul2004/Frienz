@@ -1,0 +1,93 @@
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import {authApis} from '../api/authApis'
+export const authHooks = {
+    useLogin: () => {
+        const queryClient = useQueryClient();
+        const { mutateAsync, isPending, error } = useMutation({
+            mutationFn: authApis.login,
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["user"] }); // Changed from authState
+            }
+        });
+        return { error, isLoginPending: isPending, loginMutation: mutateAsync };
+    },
+
+    useRegister: () => {
+        const queryClient = useQueryClient();
+        const { mutateAsync, isPending, error } = useMutation({
+            mutationFn: authApis.register,
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["user"] }); // Changed from authState
+            }
+        });
+        return { error, isRegisterPending: isPending, registerMutation: mutateAsync };
+    },
+
+    useLogout: () => {
+        const queryClient = useQueryClient();
+        const { mutateAsync, isPending, error } = useMutation({
+            mutationFn: authApis.logout,
+            onSuccess: () => {
+                queryClient.removeQueries({ queryKey: ["user"] }); // Clear user data on logout
+            },
+        });
+        return { error, isLogoutPending: isPending, logoutMutation: mutateAsync };
+    },
+
+    useGetUser: () => {
+        const { data, isLoading, error,isError } = useQuery({
+            queryKey: ["user"],
+            queryFn: authApis.getUser,
+            retry: false,
+            staleTime: 5 * 60 * 1000,
+        });
+        return { 
+            isLoading, 
+            user: data,
+            error,
+            isAuthenticated: !isError && !!data 
+        };
+    },
+
+    useCompleteOnboarding: () => { // Fixed typo
+        const queryClient = useQueryClient();
+        const { mutateAsync, isPending, error } = useMutation({
+            mutationFn: authApis.completeOnboarding,
+            onSuccess: (data) => {
+                queryClient.setQueryData(["user"], data.user); // Update user cache directly
+            }
+        });
+        return { error, isPending, onboardingMutation: mutateAsync };
+    },
+
+    useGetOnboardStatus: () => {
+        const { data, isLoading } = useQuery({
+            queryKey: ["user", "onboarding"], // More specific key
+            queryFn: authApis.getUser,
+            retry: false,
+            select: (userData) => userData?.isBoarded // Transform data
+        });
+        return { isLoading, isBoarded: data };
+    },
+
+    useResetPassword: () => {
+        const { mutateAsync, isPending, error } = useMutation({
+            mutationFn: authApis.resetPassword,
+        });
+        return { error, isPending, resetPasswordMutation: mutateAsync };
+    },
+
+    useVerifyResetOtp: () => {
+        const { mutateAsync, isPending, error } = useMutation({
+            mutationFn: authApis.verifyResetOtp,
+        });
+        return { error, isPending, verifyOtpMutation: mutateAsync };
+    },
+
+    useSendResetOtp: () => {
+        const { mutateAsync, isPending, error } = useMutation({
+            mutationFn: authApis.sendResetOtp,
+        });
+        return { error, isPending, sendMutation: mutateAsync };
+    }
+};
