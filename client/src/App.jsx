@@ -6,6 +6,7 @@ import Navbar from "./layout/Navbar";
 
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/reset-password" element={<ResetPassword/>} />
         <Route path="/" element={<div className="flex items-center justify-center h-full">Welcome to Frienz!</div>} />
       </Routes>
       <Toaster

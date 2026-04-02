@@ -41,11 +41,10 @@ export const authApis = {
         });
         return response.data;
     },
-    resetPassword: async ({ email, newPassword, resetToken }) => {
+    resetPassword: async ({ email, newPassword}) => {
         const response = await axiosInstance.post('/auth/reset-password', {
             email: email?.toLowerCase().trim(),
             newPassword,
-            resetToken
         });
         return response.data;
     },

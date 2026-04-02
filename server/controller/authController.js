@@ -2,6 +2,8 @@ import bcrypt from 'bcryptjs';
 import UserModel from '../models/userModel.js';
 import jsonwebtoken from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import transporter from '../config/nodemailer.js';
+import { emailTemplate } from '../lib/emailTemplet.js';
 
 dotenv.config();
 const register = async (req, res) => {
@@ -78,7 +80,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     const { email, password } = req.body;
     if (!email?.trim() || !password) {
-        return res.status(400).json({ 
+        return res.status(400).json({
             success: false,
             message: "Email and password are required"
         });
@@ -177,13 +179,19 @@ const sendResetOtp = async (req, res) => {
         user.resetOtpExpAt = Date.now() + 15 * 60 * 1000;
         await user.save();
 
-        const mailOption = {
-            from: process.env.SENDER_EMAIL,
-            to: user.email,
-            subject: "Password Reset OTP",
-            html: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 15 minutes.</p>`
-        };
-        await transporter.sendMail(mailOption);
+        try {
+
+            const mailOption = {
+                from: process.env.SENDER_EMAIL,
+                to: user.email,
+                subject: "Password Reset OTP",
+                html: emailTemplate.ResetPassword(otp)
+            };
+            await transporter.sendMail(mailOption);
+        }
+        catch (emailError) {
+            console.error("Password reset OTP email error:", emailError);
+        }
 
         return res.status(200).json({
             success: true,
@@ -215,12 +223,6 @@ const verifyResetOtp = async (req, res) => {
                 message: "Invalid request"
             });
         }
-        if (user.resetOtp === "" || user.resetOtp !== otp) {
-            return res.json({
-                success: false,
-                message: "Invalid OTP"
-            });
-        }
         if (user.resetOtpExpAt < Date.now()) {
             user.resetOtp = '';
             user.resetOtpExpAt = 0;
@@ -238,11 +240,19 @@ const verifyResetOtp = async (req, res) => {
                 message: "Invalid OTP"
             });
         }
-        const resetToken = jwt.sign(
+        const resetToken = jsonwebtoken.sign(
             { id: user._id, purpose: 'password-reset' },
             process.env.JWT_SECRET,
             { expiresIn: '15m' }
         );
+
+        res.cookie('resetToken', resetToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 15 * 60 * 1000
+        });
+
         user.resetOtp = '';
         user.resetOtpExpAt = 0;
         await user.save();
@@ -250,7 +260,6 @@ const verifyResetOtp = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "OTP verified",
-            resetToken
         });
     } catch (error) {
         res.json({
@@ -262,8 +271,20 @@ const verifyResetOtp = async (req, res) => {
 
 const resetPassword = async (req, res) => {
     const { email, newPassword } = req.body;
+    const resetToken = req.cookies.resetToken;
+    console.log(req.cookies)
 
     if (!email?.trim() || !newPassword || !resetToken) {
+        if (!resetToken) {
+            console.log("Reset token missing in cookies");
+        }
+        if (!email) {
+            console.log("Email missing in request body");
+        }
+        if (!newPassword) {
+            console.log("New password missing in request body");
+        }
+
         return res.status(400).json({
             success: false,
             message: "Email, new password, and reset token are required"
@@ -278,7 +299,7 @@ const resetPassword = async (req, res) => {
     try {
         let decoded;
         try {
-            decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+            decoded = jsonwebtoken.verify(resetToken, process.env.JWT_SECRET);
             if (decoded.purpose !== 'password-reset') {
                 throw new Error('Invalid token purpose');
             }
@@ -302,20 +323,12 @@ const resetPassword = async (req, res) => {
         const hashedPassword = await bcrypt.hash(newPassword, 12);
         user.password = hashedPassword;
         await user.save();
-
-        try {
-            const mailOption = {
-                from: process.env.SENDER_EMAIL,
-                to: user.email,
-                subject: "Password Reset Successful",
-                html: `<p>Your password has been reset successfully.</p>`
-            };
-            transporter.sendMail(mailOption).catch(console.error);
-        } catch (emailError) {
-            console.error("Password reset email error:", emailError);
-        }
-
-
+        res.clearCookie('resetToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 15 * 60 * 1000,
+        });
         return res.status(200).json({
             success: true,
             message: "Password reset successfully"
@@ -364,7 +377,7 @@ const onboard = async (req, res) => {
                 isBoarded: true
             },
             {
-                new: true, 
+                new: true,
                 select: '-password -resetOtp -resetOtpExpAt'
             }
         );
