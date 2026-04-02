@@ -71,7 +71,7 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center gap-2 p-1 hover:bg-base-300 rounded-xl transition-all duration-300 group"
+                  className="flex items-center gap-2 p-1 hover:bg-base-300 rounded-xl transition-all duration-300 group cursor-pointer"
                 >
                   <div className="w-8 h-8 rounded-full active p-0.5">
                     <div className="w-full h-full rounded-full bg-base-200 overflow-hidden">
@@ -85,17 +85,17 @@ const Navbar = () => {
                       />
                     </div>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-base-content/40 group-hover:text-base-content/60 transition-colors" />
+                  <ChevronDown className={`w-4 h-4 text-base-content/40 ${showProfileMenu ? 'rotate-180' : ''} transition-colors`} />
                 </button>
 
                 {/* Profile Dropdown Menu */}
                 {showProfileMenu && (
                   <>
                     <div
-                      className="fixed inset-0 z-40"
+                      className="fixed inset-0 z-40 cursor-pointer"
                       onClick={() => setShowProfileMenu(false)}
                     ></div>
-                    <div className="absolute right-0 mt-2 w-56 bg-base-200/90 backdrop-blur-xl border border-base-300 rounded-xl shadow-2xl overflow-hidden z-50">
+                    <div className="bg-gray-900 milky:bg-white absolute right-0 mt-2 w-56  backdrop-blur-xl border rounded-xl shadow-2xl overflow-hidden z-50">
                       {/* User info header */}
                       <div className="px-4 py-3 border-b border-base-300">
                         <p className="text-sm font-medium text-base-content">
@@ -112,7 +112,7 @@ const Navbar = () => {
                           setShowProfileMenu(false);
                           handleNavigation("/profile");
                         }}
-                        className="w-full px-4 py-3 text-left text-sm text-base-content/80 hover:bg-base-300 transition-colors flex items-center gap-2"
+                        className="w-full px-4 py-3 cursor-pointer text-left text-sm text-base-content/80 hover:bg-base-300 transition-colors flex items-center gap-2"
                       >
                         <User className="w-4 h-4" />
                         <span>View Profile</span>
@@ -123,7 +123,7 @@ const Navbar = () => {
                           setShowProfileMenu(false);
                           handleNavigation("/");
                         }}
-                        className="w-full px-4 py-3 text-left text-sm text-base-content/80 hover:bg-base-300 transition-colors flex items-center gap-2"
+                        className="w-full px-4 py-3 cursor-pointer text-left text-sm text-base-content/80 hover:bg-base-300 transition-colors flex items-center gap-2"
                       >
                         <Home className="w-4 h-4" />
                         <span>Home</span>
@@ -136,7 +136,7 @@ const Navbar = () => {
                           setShowProfileMenu(false);
                           handleLogout();
                         }}
-                        className="w-full px-4 py-3 text-left text-sm text-error hover:bg-base-300 transition-colors flex items-center gap-2"
+                        className="w-full px-4 py-3 cursor-pointer text-left text-sm text-red-500 hover:bg-red-500/20 transition-colors flex items-center gap-2"
                         disabled={isPending}
                       >
                         <LogOutIcon className="w-4 h-4" />

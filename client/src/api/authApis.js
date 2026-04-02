@@ -8,11 +8,11 @@ export const authApis = {
         })
         return response.data
     },
-    register: async ({ name, email, password }) => {
+    register: async ({ formData}) => {
         const response = await axiosInstance.post('/auth/register', {
-            name: name?.trim(),
-            email: email?.toLowerCase().trim(),
-            password
+            name: formData.name?.trim(),
+            email: formData.email?.toLowerCase().trim(),
+            password: formData.password
         })
         return response.data
     },

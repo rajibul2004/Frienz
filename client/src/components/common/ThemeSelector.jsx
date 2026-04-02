@@ -84,7 +84,7 @@ const ThemeSelector = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40"
+              className="fixed inset-0 z-40 cursor-pointer"
               onClick={() => setIsOpen(false)}
             />
             <motion.div
