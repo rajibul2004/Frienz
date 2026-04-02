@@ -3,6 +3,7 @@ import "./App.css";
 import { Toaster } from "react-hot-toast";
 
 import Navbar from "./layout/Navbar";
+import Layout from "./layout/Layout";
 
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
@@ -16,7 +17,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/reset-password" element={<ResetPassword/>} />
-        <Route path="/" element={<div className="flex items-center justify-center h-full">Welcome to Frienz!</div>} />
+        <Route path="/" element={
+          <Layout>
+            
+          </Layout>
+        } />
       </Routes>
       <Toaster
         position="top-center"
