@@ -308,7 +308,7 @@ const Profile = () => {
                     Location
                   </label>
                   {!isEditing ? (
-                    <div className="px-4 py-3 Inputrounded-xl  flex items-center gap-2">
+                    <div className="px-4 py-3 Input rounded-xl  flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-white/40 milky:text-gray-900/40" />
                       {user?.location || "Not set"}
                     </div>
