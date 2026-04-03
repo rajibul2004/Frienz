@@ -48,15 +48,14 @@ export const authApis = {
         });
         return response.data;
     },
-    completeOnboarding: async ({ name, bio, nativeLang, location, profilePic }) => {
+    completeOnboarding: async ({ formData }) => {
         const response = await axiosInstance.post('/auth/update', {
-            name: name?.trim(),
-            bio: bio?.trim(),
-            nativeLang: nativeLang?.trim(),
-            location: location?.trim(),
-            profilePic
+            name: formData.name?.trim(),
+            bio: formData.bio?.trim(),
+            nativeLang: formData.nativeLang?.trim(),
+            location: formData.location?.trim(),
+            profilePic: formData.profilePic
         });
-        console.log(response.data)
         return response.data;
     }
 }

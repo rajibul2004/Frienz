@@ -21,22 +21,33 @@ const { LANGUAGES } = APP_CONSTANTS;
 const Onboarding = () => {
   const navigate = useNavigate();
   const { user } = authHooks.useGetUser();
-  const [name, setName] = useState("");
-  const [bio, setBio] = useState("");
-  const [nativeLang, setNativeLang] = useState("");
-  const [location, setLocation] = useState("");
-  const [profilePic, setProfilePic] = useState("");
+
+  const [formData,setFormData]=useState({
+    name:"",
+    bio:"",
+    nativeLang:"",
+    location:"",
+    profilePic:""
+  })
+  // const [name, setName] = useState("");
+  // const [bio, setBio] = useState("");
+  // const [nativeLang, setNativeLang] = useState("");
+  // const [location, setLocation] = useState("");
+  // const [profilePic, setProfilePic] = useState("");
   const [avatarHover, setAvatarHover] = useState(false);
   const [formStep, setFormStep] = useState(1);
 
   useEffect(() => {
     sessionStorage.setItem("Onboarding-State", false);
     if (user) {
-      setName(user.name || "");
-      setBio(user.bio || "");
-      setNativeLang(user.nativeLang || "");
-      setLocation(user.location || "");
-      setProfilePic(user.profilePic || "");
+      setFormData({
+        ...formData,
+        name: user.name || "",
+        bio: user.bio || "",
+        nativeLang: user.nativeLang || "",
+        location: user.location || "",
+        profilePic: user.profilePic || ""
+      });
     }
   }, [user]);
 
@@ -46,7 +57,7 @@ const Onboarding = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await onboardingMutation({ name, bio, nativeLang, location, profilePic });
+      await onboardingMutation({ formData });
       await refetch();
 
       toast.success("Profile completed successfully! 🎉");
@@ -60,15 +71,12 @@ const Onboarding = () => {
   const handleRandomAvatar = () => {
     const idx = Math.floor(Math.random() * 35) + 1;
     const randomavatar = ` https://cdn.jsdelivr.net/gh/alohe/memojis/png/memo_${idx}.png`;
-    setProfilePic(randomavatar);
-    toast.success("Random profile picture generated! ✨", {
-      icon: "🎨",
-    });
+    setFormData((prev) => ({ ...prev, profilePic: randomavatar }));
   };
 
   // Form validation
-  const isStep1Valid = name.trim() !== "" && bio.trim() !== "";
-  const isStep2Valid = nativeLang !== "" && location.trim() !== "";
+  const isStep1Valid = formData.name.trim() !== "" && formData.bio.trim() !== "";
+  const isStep2Valid = formData.nativeLang !== "" && formData.location.trim() !== "";
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -134,9 +142,9 @@ const Onboarding = () => {
                   {/* Avatar container */}
                   <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full  bg-white/20 milky:bg-gray-900/10 p-1">
                     <div className="w-full h-full cursor-pointer rounded-full overflow-hidden">
-                      {profilePic ? (
+                      {formData.profilePic ? (
                         <img
-                          src={profilePic}
+                          src={formData.profilePic}
                           alt="Profile"
                           className="w-full h-full object-cover"
                         />
@@ -195,8 +203,8 @@ const Onboarding = () => {
                       </label>
                       <input
                         type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Enter your name"
                         className="w-full px-4 py-3 Input"
                         required
@@ -210,15 +218,15 @@ const Onboarding = () => {
                         Bio
                       </label>
                       <textarea
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
+                        value={formData.bio}
+                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                         placeholder="Tell others about yourself..."
                         rows="4"
                         className="w-full px-4 Input resize-none"
                         required
                       />
                       <p className="text-xs text-white/40 text-right">
-                        {bio.length}/200
+                        {formData.bio.length}/200
                       </p>
                     </div>
                   </motion.div>
@@ -240,8 +248,8 @@ const Onboarding = () => {
                         Native Language
                       </label>
                       <select
-                        value={nativeLang}
-                        onChange={(e) => setNativeLang(e.target.value)}
+                        value={formData.nativeLang}
+                        onChange={(e) => setFormData({ ...formData, nativeLang: e.target.value })}
                         className="w-full px-4 py-3 Input"
                         required
                       >
@@ -270,8 +278,8 @@ const Onboarding = () => {
                         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40 milky:text-gray-900/40" />
                         <input
                           type="text"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
+                          value={formData.location}
+                          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                           placeholder="City, Country"
                           className="w-full pl-10 pr-4 py-3  Input"
                           required
