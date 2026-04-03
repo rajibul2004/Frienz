@@ -8,6 +8,7 @@ import Layout from "./layout/Layout";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ResetPassword from "./pages/ResetPassword";
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword/>} />
         <Route path="/" element={
           <Layout>
-            
+            <Home/>
           </Layout>
         } />
       </Routes>

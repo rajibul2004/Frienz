@@ -109,7 +109,7 @@ const Sidebar = () => {
             onClick={() => handleNavigation("/profile")}
             className={`
                             w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
-                            transition-all duration-300 hover:bg-white/10 group
+                            transition-all duration-300 hover:bg-white/10 group cursor-pointer
                             ${currentPath === "/profile" ? "bg-white/10" : ""}
                         `}
           >

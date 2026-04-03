@@ -3,6 +3,11 @@ import dotenv from 'dotenv';
 import connectDB from './config/mongodb.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors'
+import path from 'path';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 import authRoutes from './routes/authRoutes.js';
 
@@ -27,15 +32,23 @@ app.use(cors(corsOptions));
 app.use('/api/auth', authRoutes);
 
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
   });
 });
 
+if (process.env.NODE_ENV === "production") {
+  const clientBuildPath = path.join(__dirname, '../client/dist');
+  app.use(express.static(clientBuildPath));
+  app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+  });
+}
+
 
 app.listen(PORT, () => {
-    console.log(`App is listening at http://${HOST}:${PORT}/`);
-    console.log(`📡 Environment: ${NODE_ENV}`);
+  console.log(`App is listening at http://${HOST}:${PORT}/`);
+  console.log(`📡 Environment: ${NODE_ENV}`);
 });
 
