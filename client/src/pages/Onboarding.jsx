@@ -165,7 +165,7 @@ const Onboarding = () => {
                         exit={{ opacity: 0 }}
                         className="absolute inset-0 flex items-center justify-center"
                       >
-                        <div className="absolute inset-0 bg-black/50 rounded-full" />
+                        <div className="absolute inset-0 bg-black/50 milky:bg-white/50 rounded-full" />
                         <Camera className="w-8 h-8 relative z-10" />
                       </motion.div>
                     )}

@@ -10,6 +10,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
 import Onboarding from "./pages/Onboarding";
 import PrivateRoute from "./route/PrivateRoute";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -33,7 +34,18 @@ function App() {
           path="/onboarding"
           element={
             <PrivateRoute>
-              <Onboarding/>
+              <Onboarding />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Layout showSidebar={false}>
+                <Profile/>
+              </Layout>
             </PrivateRoute>
           }
         />
