@@ -23,6 +23,7 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
+
 const app = express();
 connectDB();
 app.use(express.json({ limit: '10mb' }));

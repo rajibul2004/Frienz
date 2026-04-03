@@ -39,8 +39,8 @@ const register = async (req, res) => {
             });
         }
 
-        const idx = Math.floor(Math.random() * 100 + 1);
-        const radomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+        const idx = Math.floor(Math.random() * 35 + 1);
+        const radomAvatar = ` https://cdn.jsdelivr.net/gh/alohe/memojis/png/memo_${idx}.png`;
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new UserModel({ name: name.trim(), email: email.toLowerCase().trim(), password: hashedPassword, profilePic: radomAvatar, isVerified: true });

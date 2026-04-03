@@ -61,13 +61,13 @@ export const authHooks = {
     },
 
     useGetOnboardStatus: () => {
-        const { data, isLoading } = useQuery({
+        const { data, isLoading,refetch } = useQuery({
             queryKey: ["user", "onboarding"], // More specific key
             queryFn: authApis.getUser,
             retry: false,
             select: (userData) => userData?.isBoarded // Transform data
         });
-        return { isLoading, isBoarded: data };
+        return { isLoading, isBoarded: data ,refetch};
     },
 
     useResetPassword: () => {

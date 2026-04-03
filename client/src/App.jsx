@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import { Toaster } from "react-hot-toast";
-
 import Navbar from "./layout/Navbar";
 import Layout from "./layout/Layout";
 
@@ -9,6 +8,8 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
+import Onboarding from "./pages/Onboarding";
+import PrivateRoute from "./route/PrivateRoute";
 
 function App() {
   return (
@@ -17,12 +18,25 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/reset-password" element={<ResetPassword/>} />
-        <Route path="/" element={
-          <Layout>
-            <Home/>
-          </Layout>
-        } />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Home />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            <PrivateRoute>
+              <Onboarding/>
+            </PrivateRoute>
+          }
+        />
       </Routes>
       <Toaster
         position="top-center"
