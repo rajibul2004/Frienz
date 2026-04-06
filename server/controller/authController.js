@@ -272,7 +272,6 @@ const verifyResetOtp = async (req, res) => {
 const resetPassword = async (req, res) => {
     const { email, newPassword } = req.body;
     const resetToken = req.cookies.resetToken;
-    console.log(req.cookies)
 
     if (!email?.trim() || !newPassword || !resetToken) {
         if (!resetToken) {

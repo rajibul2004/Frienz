@@ -117,7 +117,7 @@ const Profile = () => {
       >
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
           {/* Header */}
-          <div className="relative p-6 sm:p-8 border-b border-white/10">
+          <div className="relative p-6 sm:p-8  border-b border-white/10">
             <motion.div
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
@@ -133,17 +133,7 @@ const Profile = () => {
               </p>
             </motion.div>
 
-            {/* Profile completion indicator */}
-            {!isEditing && user && (
-              <div className="absolute top-4 right-4">
-                <div className="px-3 py-1.5 bg-white/5 milky:bg-gray-900/5 border border-white/10 milky:border-gray-900/10 rounded-full">
-                  <span className="text-xs text-white/60 milky:text-gray-900/60 flex items-center gap-1">
-                    <Check className="w-3 h-3 text-green-400" />
-                    Profile Complete
-                  </span>
-                </div>
-              </div>
-            )}
+
           </div>
 
           <div className="p-6 sm:p-8">
