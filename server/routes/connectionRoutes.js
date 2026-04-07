@@ -8,14 +8,15 @@ const router = express.Router();
 
 router.use(extractUserId, attachUser);
 
-router.get('/', getRecommendedUsers);
+router.get('/recommendations', getRecommendedUsers);
 router.get('/friends', getFriends);
 
 router.post('/send-request/:id', sendFriendRequest);
 router.put('/accept-request/:id/', acceptFriendRequest);
 
-router.get('/friend-request', getFriendRequest);
+router.get('/incoming-friend-requests', getFriendRequest);
 router.get('/outgoing-friend-requests', getOutGoingReq);
+
 router.delete('/remove-friend/:id', removeFriend);
 
 export default router;

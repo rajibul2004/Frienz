@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Onboarding from "./pages/Onboarding";
 import PrivateRoute from "./route/PrivateRoute";
 import Profile from "./pages/Profile";
+import Notification from "./pages/Notification";
 
 function App() {
   return (
@@ -49,6 +50,17 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        <Route
+            path="/notification"
+            element={
+              <PrivateRoute>
+                <Layout showSidebar={true}>
+                  <Notification/>
+                </Layout>
+              </PrivateRoute>
+            }
+          />
       </Routes>
       <Toaster
         position="top-center"
