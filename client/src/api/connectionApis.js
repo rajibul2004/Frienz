@@ -6,7 +6,6 @@ export const connectionApis = {
             const response = await axiosInstance.get('/connections/outgoing-friend-requests');
             return response.data;
         } catch (error) {
-            console.error("Failed to get outgoing requests:", error);
             throw error;
         }
     },
@@ -15,7 +14,6 @@ export const connectionApis = {
             const response = await axiosInstance.get('/connections/incoming-friend-requests');
             return response.data;
         } catch (error) {
-            console.error("Failed to get friend requests:", error);
             throw error;
         }
     },
@@ -26,7 +24,6 @@ export const connectionApis = {
             const response = await axiosInstance.get('/connections/recommendations');
             return response.data?.recommendedUsers;
         } catch (error) {
-            console.error("Failed to get recommendations:", error);
             throw error;
         }
     },
@@ -35,10 +32,8 @@ export const connectionApis = {
     getFriends: async () => {
         try {
             const response = await axiosInstance.get('/connections/friends');
-            console.log("Friends", response.data)
             return response.data || [];
         } catch (error) {
-            console.error("Failed to get friends:", error);
             return [];
         }
     },
@@ -49,7 +44,6 @@ export const connectionApis = {
             const response = await axiosInstance.post(`/connections/send-request/${userId}`);
             return response.data;
         } catch (error) {
-            console.error("Failed to send friend request:", error);
             throw error;
         }
     },
@@ -60,7 +54,6 @@ export const connectionApis = {
             const response = await axiosInstance.put(`/connections/accept-request/${requestId}`); // Added missing /
             return response.data;
         } catch (error) {
-            console.error("Failed to accept friend request:", error);
             throw error;
         }
     }
@@ -71,7 +64,6 @@ export const connectionApis = {
             const response = await axiosInstance.delete(`/connections/remove-friend/${friendId}`);
             return response.data;
         } catch (error) {
-            console.error("Failed to remove friend:", error);
             throw error;
         }
     }

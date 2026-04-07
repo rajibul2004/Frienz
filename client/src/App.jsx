@@ -12,6 +12,7 @@ import Onboarding from "./pages/Onboarding";
 import PrivateRoute from "./route/PrivateRoute";
 import Profile from "./pages/Profile";
 import Notification from "./pages/Notification";
+import Friends from "./pages/Friends";
 
 function App() {
   return (
@@ -45,22 +46,32 @@ function App() {
           element={
             <PrivateRoute>
               <Layout showSidebar={false}>
-                <Profile/>
+                <Profile />
               </Layout>
             </PrivateRoute>
           }
         />
 
         <Route
-            path="/notification"
-            element={
-              <PrivateRoute>
-                <Layout showSidebar={true}>
-                  <Notification/>
-                </Layout>
-              </PrivateRoute>
-            }
-          />
+          path="/notification"
+          element={
+            <PrivateRoute>
+              <Layout showSidebar={true}>
+                <Notification />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/friends"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Friends />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
       </Routes>
       <Toaster
         position="top-center"

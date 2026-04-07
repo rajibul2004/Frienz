@@ -69,8 +69,6 @@ export const connectionHooks = {
             retry: false,
             staleTime: 10 * 60 * 1000, // 10 minutes
         });
-        console.log("HOOK DATA:", data);
-  console.log("HOOK ERROR:", error);
         return { 
             isLoading, 
             recommendedUsers: data|| [], 
@@ -93,4 +91,15 @@ export const connectionHooks = {
             error 
         };
     },
+    useRemoveFriend:()=>{
+        const queryClient = useQueryClient();   
+        const { mutateAsync, isPending, error } = useMutation({
+            mutationFn: connectionApis.removeFriend,
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["friends"] });
+                queryClient.invalidateQueries({ queryKey: ["recommended-users"] });
+            }
+        });
+        return { error, isPending, removeFriendMutation: mutateAsync };
+    }   
 };

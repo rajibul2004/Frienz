@@ -72,7 +72,7 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center gap-2 p-1 hover:bg-base-300 rounded-xl transition-all duration-300 group cursor-pointer"
+                  className="flex items-center gap-2 p-1  rounded-xl transition-all duration-300 group cursor-pointer"
                 >
                   <div className="w-8 h-8 rounded-full active p-0.5">
                     <div className="w-full h-full rounded-full bg-base-200 overflow-hidden">
