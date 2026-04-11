@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import {authApis} from '../api/authApis'
+import { authApis } from '../api/authApis'
 export const authHooks = {
     useLogin: () => {
         const queryClient = useQueryClient();
@@ -35,21 +35,38 @@ export const authHooks = {
     },
 
     useGetUser: () => {
-        const { data, isLoading, error,isError } = useQuery({
+        const { data, isLoading, error, isError } = useQuery({
             queryKey: ["user"],
             queryFn: authApis.getUser,
             retry: false,
             staleTime: 5 * 60 * 1000,
         });
-        return { 
-            isLoading, 
+        return {
+            isLoading,
             user: data,
             error,
-            isAuthenticated: !isError && !!data 
+            isAuthenticated: !isError && !!data
         };
     },
 
-    useCompleteOnboarding: () => { // Fixed typo
+    useGetUserById: (id) => {
+    const { data, isLoading, error, isError } = useQuery({
+        queryKey: ["userById", id],
+        queryFn: () => authApis.getUserById(id),
+        enabled: !!id,
+        retry: false,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    return {
+        isLoading,
+        user: data,
+        error,
+        isAuthenticated: !isError && !!data
+    };
+},
+
+    useCompleteOnboarding: () => {
         const queryClient = useQueryClient();
         const { mutateAsync, isPending, error } = useMutation({
             mutationFn: authApis.completeOnboarding,
@@ -61,13 +78,13 @@ export const authHooks = {
     },
 
     useGetOnboardStatus: () => {
-        const { data, isLoading,refetch } = useQuery({
+        const { data, isLoading, refetch } = useQuery({
             queryKey: ["user", "onboarding"], // More specific key
             queryFn: authApis.getUser,
             retry: false,
             select: (userData) => userData?.isBoarded // Transform data
         });
-        return { isLoading, isBoarded: data ,refetch};
+        return { isLoading, isBoarded: data, refetch };
     },
 
     useResetPassword: () => {

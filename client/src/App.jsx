@@ -4,12 +4,13 @@ import { Toaster } from "react-hot-toast";
 import Navbar from "./layout/Navbar";
 import Layout from "./layout/Layout";
 
+import PrivateRoute from "./components/route/PrivateRoute";
+
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
 import Onboarding from "./pages/Onboarding";
-import PrivateRoute from "./route/PrivateRoute";
 import Profile from "./pages/Profile";
 import Notification from "./pages/Notification";
 import Friends from "./pages/Friends";
@@ -72,6 +73,7 @@ function App() {
             </PrivateRoute>
           }
         />
+
       </Routes>
       <Toaster
         position="top-center"

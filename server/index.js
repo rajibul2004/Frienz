@@ -26,6 +26,7 @@ const corsOptions = {
 
 
 const app = express();
+
 connectDB();
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());

@@ -87,7 +87,34 @@
     @apply bg-gradient-to-r from-cyan-500 to-teal-600 shadow-cyan-500/25;
   }
   .luxury .active {
-    @apply bg-gradient-to-r from-amber-400 to-yellow-500 shadow-amber-400/25;
+    @apply bg-gradient-to-r from-amber-400 to-yellow-500 shadow-amber-400/25 text-gray-900;
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE & Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  /* .own{
+    @apply bg-gradient-to-r from-indigo-500 to-purple-500  shadow-indigo-500/25;
+  }
+  .forest .own {
+    @apply bg-gradient-to-r from-emerald-500 to-green-600 shadow-emerald-500/25;
+  }
+  .midnight .own {
+    @apply bg-gradient-to-r from-gray-700 to-slate-700 shadow-violet-500/25;
+  }
+  .milky .own {
+    @apply bg-gradient-to-r from-gray-300 to-slate-300 shadow-slate-500/25;
+  }
+  .aqua .own {
+    @apply bg-gradient-to-r from-cyan-500 to-teal-600 shadow-cyan-500/25;
+  }
+  .luxury .own {
+    @apply bg-gradient-to-r from-amber-400 to-yellow-500 shadow-amber-400/25;
+  } */
 }

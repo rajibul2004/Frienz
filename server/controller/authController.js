@@ -400,8 +400,53 @@ const onboard = async (req, res) => {
         });
     }
 };
+
+
+// get user by id
+const getUser = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        console.log(req.params.userId)
+        console.log("userId",userId)
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required"
+            });
+        }
+        const user = await UserModel.findById(userId)
+            .select('-password -resetOtp -resetOtpExpAt')
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User account not found"
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            user: {
+                name:user.name,
+                profilePic:user.profilePic,
+                bio:user.bio,
+                nativeLang:user.nativeLang,
+                location:user.location,
+                friends:user.friends.length,
+                memberSince: new Date(user.createdAt).toDateString()
+            }
+        });
+    }
+    catch (err) {
+        console.log(err.meassge);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+
+}
 export {
-    register, login, logout, sendResetOtp, verifyResetOtp, resetPassword, onboard
+    register, login, logout, sendResetOtp, verifyResetOtp, resetPassword, onboard,getUser
 };
 
 

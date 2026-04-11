@@ -8,7 +8,7 @@ export const authApis = {
         })
         return response.data
     },
-    register: async ({ formData}) => {
+    register: async ({ formData }) => {
         const response = await axiosInstance.post('/auth/register', {
             name: formData.name?.trim(),
             email: formData.email?.toLowerCase().trim(),
@@ -41,7 +41,7 @@ export const authApis = {
         });
         return response.data;
     },
-    resetPassword: async ({ email, newPassword}) => {
+    resetPassword: async ({ email, newPassword }) => {
         const response = await axiosInstance.post('/auth/reset-password', {
             email: email?.toLowerCase().trim(),
             newPassword,
@@ -57,5 +57,14 @@ export const authApis = {
             profilePic: formData.profilePic
         });
         return response.data;
+    },
+    getUserById: async (id) => {
+        try {
+            const response = await axiosInstance.get(`/auth/user/${id}`)
+            return response.data.user
+        }
+        catch (err) {
+            console.log("Error",err.message)
+        }
     }
 }

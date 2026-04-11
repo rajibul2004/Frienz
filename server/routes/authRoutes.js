@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, logout, sendResetOtp, resetPassword, onboard, verifyResetOtp } from '../controller/authController.js';
+import { register, login, logout, sendResetOtp, resetPassword, onboard, verifyResetOtp, getUser } from '../controller/authController.js';
 import extractUserId from '../middleware/extractUerId.js'
 import attachUser from '../middleware/attachUser.js';
 
@@ -21,5 +21,8 @@ router.get('/me', extractUserId, attachUser, (req, res) => {
         user: req.user
     });
 });
+
+router.get('/user/:userId',getUser);
+
 
 export default router;
