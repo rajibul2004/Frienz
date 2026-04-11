@@ -20,9 +20,30 @@ function App() {
     <div className="min-h-screen w-full flex flex-col ">
       {/* <Navbar /> */}
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/login"
+          element={
+            <Layout showSidebar={false}>
+              <Login />
+            </Layout>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <Layout showSidebar={false}>
+              <SignUp />
+            </Layout>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <Layout showSidebar={false}>
+              <ResetPassword />
+            </Layout>
+          }
+        />
         <Route
           path="/"
           element={
@@ -73,7 +94,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
       </Routes>
       <Toaster
         position="top-center"

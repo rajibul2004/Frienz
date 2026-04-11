@@ -79,7 +79,7 @@ const Onboarding = () => {
   const isStep2Valid = formData.nativeLang !== "" && formData.location.trim() !== "";
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="items-center justify-center ">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

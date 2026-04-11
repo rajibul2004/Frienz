@@ -3,7 +3,7 @@ import React from 'react'
 
 const NoNotificationFound = () => {
   return (
-    <div className='flex flex-col justify-center min-h-screen items-center py-16 text-center'>
+    <div className='flex flex-col justify-center items-center py-16 text-center'>
       <div className='size-16 rounded-full bg-base-300 flex items-center justify-center mb-4'>
         <BellIcon className='size-8 text-base-content opacity-40'/>
       </div>

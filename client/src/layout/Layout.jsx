@@ -2,11 +2,11 @@ import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
 
-const Layout = ({ children, showSidebar = true }) => {
+const Layout = ({ children, showSidebar = true,showNavbar=true }) => {
   return (
     <div className="min-h-screen">
       <div className="flex flex-1 flex-col relative">
-        <Navbar />
+        {showNavbar && <Navbar/> }
         {/* Sidebar - conditionally rendered */}
         <div className="flex ">
           {showSidebar && (
@@ -17,12 +17,13 @@ const Layout = ({ children, showSidebar = true }) => {
           <div
             className={` z-10
           flex-1 flex flex-col transition-all duration-300
-          ml-20
+          ${showSidebar && "ml-20"} 
+          min-h-[calc(100vh-4rem)]
         `}
           >
-            <main className="flex-1 p-4 sm:p-6 lg:p-8">
-              <div className="max-w-7xl mx-auto">
-                <div className="animate-fadeIn">{children}</div>
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 h-full">
+              <div className="max-w-7xl mx-auto h-full">
+                <div className="animate-fadeIn h-full">{children}</div>
               </div>
             </main>
 
