@@ -270,6 +270,234 @@ const Home = () => {
               )}
             </motion.div>
           )}
+          {isRecommendationLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+            </div>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+            >
+              {recommendedUsers.length === 0 ? (
+                <div className="col-span-full">
+                  <div className="bg-white/5 milky:bg-gray-400/5 backdrop-blur-sm border border-white/10 milky:border-gray-900/10 rounded-2xl p-8 text-center">
+                    <Compass className="w-12 h-12 text-white/20 milky:text-gray-900/20 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold  mb-2">
+                      No recommendations available
+                    </h3>
+                    <p className="text-white/40 milky:text-gray-900/40">
+                      Check back later for new friend suggestions!
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                recommendedUsers.map((user) => {
+                  const hasRequestBeenSent = outGoingFRIds.has(user._id);
+
+                  return (
+                    <motion.div
+                      key={user._id}
+                      variants={itemVariants}
+                      className="group bg-white/5 milky:bg-gray-400/5 backdrop-blur-sm border border-white/10 milky:border-gray-900/10 rounded-2xl hover:bg-white/10 milky:hover:bg-gray-400/10 hover:border-indigo-500/30 transition-all duration-300 overflow-hidden"
+                    >
+                      {/* Header with Avatar */}
+                      <div className="relative h-20 bg-linear-to-r from-white/5 milky:from-gray-900/5 to-white/10 milky:to-gray-900/10">
+                        <div className="absolute -bottom-8 left-4">
+                          <div className="w-16 h-16 rounded-full active p-0.5 shadow-xl">
+                            <div className="w-full h-full rounded-full  overflow-hidden">
+                              <img
+                                src={user.profilePic || "/default-avatar.png"}
+                                alt={user.name}
+                                className="w-full h-full object-cover "
+                                loading="lazy"
+                                onError={(e) =>
+                                  (e.target.src =
+                                    "https://via.placeholder.com/150")
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 pt-10">
+                        {/* User Info */}
+                        <div className="mb-3">
+                          <h3 className="font-semibold  text-lg truncate">
+                            {user.name}
+                          </h3>
+                          {user.location && (
+                            <div className="flex items-center text-white/60 milky:text-gray-900/60 text-sm mt-1">
+                              <MapPinIcon className="w-3 h-3 mr-1 shrink-0" />
+                              <span className="truncate">{user.location}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Bio & Language */}
+                        <div className="space-y-3">
+                          {user.bio && (
+                            <p className="text-sm text-white/60 milky:text-gray-900/60 line-clamp-2">
+                              {user.bio}
+                            </p>
+                          )}
+                          {user.nativeLang && (
+                            <span className="inline-block px-2 py-1 text-xs active rounded-full font-medium">
+                              {user.nativeLang}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Button */}
+                        <button
+                          className={`w-full mt-4 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 btn-primary-theme ${
+                            hasRequestBeenSent
+                              ? " text-green-500  cursor-not-allowed"
+                              : " hover:shadow-lg hover:shadow-gray-500/25 hover:scale-[1.02] active:scale-[0.98]"
+                          }`}
+                          onClick={() =>
+                            !hasRequestBeenSent &&
+                            sendFRMutation(user._id) &&
+                            setOutgoingFRIds((prev) =>
+                              new Set(prev).add(user._id),
+                            )
+                          }
+                          disabled={hasRequestBeenSent || isSending}
+                        >
+                          {hasRequestBeenSent ? (
+                            <>
+                              <CheckCircleIcon size={16} /> Request Sent
+                            </>
+                          ) : (
+                            <>
+                              <UserPlusIcon size={16} /> Send Request
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
+            </motion.div>
+          )}
+          {isRecommendationLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+            </div>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+            >
+              {recommendedUsers.length === 0 ? (
+                <div className="col-span-full">
+                  <div className="bg-white/5 milky:bg-gray-400/5 backdrop-blur-sm border border-white/10 milky:border-gray-900/10 rounded-2xl p-8 text-center">
+                    <Compass className="w-12 h-12 text-white/20 milky:text-gray-900/20 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold  mb-2">
+                      No recommendations available
+                    </h3>
+                    <p className="text-white/40 milky:text-gray-900/40">
+                      Check back later for new friend suggestions!
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                recommendedUsers.map((user) => {
+                  const hasRequestBeenSent = outGoingFRIds.has(user._id);
+
+                  return (
+                    <motion.div
+                      key={user._id}
+                      variants={itemVariants}
+                      className="group bg-white/5 milky:bg-gray-400/5 backdrop-blur-sm border border-white/10 milky:border-gray-900/10 rounded-2xl hover:bg-white/10 milky:hover:bg-gray-400/10 hover:border-indigo-500/30 transition-all duration-300 overflow-hidden"
+                    >
+                      {/* Header with Avatar */}
+                      <div className="relative h-20 bg-linear-to-r from-white/5 milky:from-gray-900/5 to-white/10 milky:to-gray-900/10">
+                        <div className="absolute -bottom-8 left-4">
+                          <div className="w-16 h-16 rounded-full active p-0.5 shadow-xl">
+                            <div className="w-full h-full rounded-full  overflow-hidden">
+                              <img
+                                src={user.profilePic || "/default-avatar.png"}
+                                alt={user.name}
+                                className="w-full h-full object-cover "
+                                loading="lazy"
+                                onError={(e) =>
+                                  (e.target.src =
+                                    "https://via.placeholder.com/150")
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 pt-10">
+                        {/* User Info */}
+                        <div className="mb-3">
+                          <h3 className="font-semibold  text-lg truncate">
+                            {user.name}
+                          </h3>
+                          {user.location && (
+                            <div className="flex items-center text-white/60 milky:text-gray-900/60 text-sm mt-1">
+                              <MapPinIcon className="w-3 h-3 mr-1 shrink-0" />
+                              <span className="truncate">{user.location}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Bio & Language */}
+                        <div className="space-y-3">
+                          {user.bio && (
+                            <p className="text-sm text-white/60 milky:text-gray-900/60 line-clamp-2">
+                              {user.bio}
+                            </p>
+                          )}
+                          {user.nativeLang && (
+                            <span className="inline-block px-2 py-1 text-xs active rounded-full font-medium">
+                              {user.nativeLang}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Button */}
+                        <button
+                          className={`w-full mt-4 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 btn-primary-theme ${
+                            hasRequestBeenSent
+                              ? " text-green-500  cursor-not-allowed"
+                              : " hover:shadow-lg hover:shadow-gray-500/25 hover:scale-[1.02] active:scale-[0.98]"
+                          }`}
+                          onClick={() =>
+                            !hasRequestBeenSent &&
+                            sendFRMutation(user._id) &&
+                            setOutgoingFRIds((prev) =>
+                              new Set(prev).add(user._id),
+                            )
+                          }
+                          disabled={hasRequestBeenSent || isSending}
+                        >
+                          {hasRequestBeenSent ? (
+                            <>
+                              <CheckCircleIcon size={16} /> Request Sent
+                            </>
+                          ) : (
+                            <>
+                              <UserPlusIcon size={16} /> Send Request
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
+            </motion.div>
+          )}
         </motion.section>
       </div>
     </div>

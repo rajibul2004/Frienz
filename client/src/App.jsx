@@ -18,7 +18,7 @@ import Friends from "./pages/Friends";
 function App() {
   return (
     <div className="min-h-screen w-full flex flex-col ">
-      <Navbar />
+      {/* <Navbar /> */}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />

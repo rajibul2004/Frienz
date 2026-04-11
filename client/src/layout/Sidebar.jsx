@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import{useState } from "react";
 import {
   BellIcon,
   HomeIcon,
@@ -9,24 +9,18 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { useIsMobile } from "../hooks/useIsMobile";
 import { authHooks } from "../hooks/authHooks";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const { user } = authHooks.useGetUser();
   const { isPending, logoutMutation } = authHooks.useLogout();
-  const [isCollapsed, setIsCollapsed] = useState(isMobile);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const currentPath = window.location.pathname;
 
   const handleNavigation = (path) => {
     navigate(path);
   };
-
-  useEffect(() => {
-    setIsCollapsed(isMobile);
-  }, [isMobile]);
 
   const handleLogout = async () => {
     try {
@@ -46,8 +40,8 @@ const Sidebar = () => {
   return (
     <aside
       className={`
-            bg-base-200/50 backdrop-blur-md border-r border-white/10 milky:border-gray-900/10
-            h-[calc(100vh-4rem)] sticky top-16 left-0 z-20 transition-all duration-300
+            backdrop-blur-md border-r border-white/10 milky:border-gray-900/10
+            h-[calc(100vh-4rem)] absolute top-16 left-0 z-20 transition-all duration-300
             ${isCollapsed ? "w-20" : "w-64"}
         `}
     >
