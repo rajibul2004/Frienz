@@ -6,6 +6,8 @@ import cors from 'cors'
 import path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { Server } from 'socket.io';
+import http from 'http'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -26,6 +28,26 @@ const corsOptions = {
 
 
 const app = express();
+const server=http.createServer(app)
+
+const io=new Server(server,{cors:corsOptions});
+
+// Socket connection
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  // Receive message from frontend
+  socket.on("send_message", (data) => {
+    console.log("Message received:", data);
+
+    // Send message back to all clients
+    io.emit("receive_message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
 
 connectDB();
 app.use(express.json({ limit: '10mb' }));
@@ -54,7 +76,7 @@ if (NODE_ENV === "production") {
 }
 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`App is listening at http://${HOST}:${PORT}/`);
   console.log(`📡 Environment: ${NODE_ENV}`);
 });

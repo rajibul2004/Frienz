@@ -406,8 +406,6 @@ const onboard = async (req, res) => {
 const getUser = async (req, res) => {
     try {
         const userId = req.params.userId;
-        console.log(req.params.userId)
-        console.log("userId",userId)
         if (!userId) {
             return res.status(400).json({
                 success: false,

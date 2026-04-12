@@ -20,6 +20,9 @@ const Sidebar = () => {
 
   const handleNavigation = (path) => {
     navigate(path);
+    if(!isCollapsed){
+      setIsCollapsed(true);
+    }
   };
 
   const handleLogout = async () => {

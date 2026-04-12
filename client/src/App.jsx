@@ -14,6 +14,8 @@ import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
 import Notification from "./pages/Notification";
 import Friends from "./pages/Friends";
+import UserProfile from "./pages/UserProfile";
+import Chat from "./pages/Chat";
 
 function App() {
   return (
@@ -73,6 +75,16 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/profile/:id"
+          element={
+            <PrivateRoute>
+              <Layout showSidebar={false}>
+                <UserProfile/>
+              </Layout>
+            </PrivateRoute>
+          }
+        />
 
         <Route
           path="/notification"
@@ -93,6 +105,10 @@ function App() {
               </Layout>
             </PrivateRoute>
           }
+        />
+        <Route
+        path="/chat"
+        element={<Chat/>}
         />
       </Routes>
       <Toaster

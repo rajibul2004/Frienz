@@ -7,8 +7,6 @@ import {
   UserMinus,
   ArrowRight,
 } from "lucide-react";
-import React from "react";
-import { assets } from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { connectionHooks } from "../../hooks/connectionHooks";
@@ -82,7 +80,11 @@ const FriendCard = ({ friend }) => {
                 <div className=" absolute right-0 backdrop-blur-xl  rounded-xl shadow-2xl overflow-hidden z-50">
                   {/* User info header */}
                   <div className="px-4 py-3 flex flex-col gap-2 ">
-                    <p className="text-sm flex items-center gap-2 font-medium">
+                    <p
+                    onClick={async()=>{
+                      await navigate(`/profile/${friend._id}`)
+                    }}
+                     className="text-sm flex items-center gap-2 font-medium cursor-pointer">
                       Profile
                       <ArrowRight className="w-4 h-4" />
                     </p>
