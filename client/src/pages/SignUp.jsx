@@ -15,7 +15,8 @@ const SignUp = () => {
     password: "",
   });
 
-  const { isPending: isRegistering, registerMutation } = authHooks.useRegister();
+  const { isPending: isRegistering, registerMutation } =
+    authHooks.useRegister();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -68,11 +69,16 @@ const SignUp = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80 milky:text-gray-800/80 flex items-center gap-2">
+                <label
+                  htmlFor="name"
+                  className="text-sm font-medium text-white/80 milky:text-gray-800/80 flex items-center gap-2"
+                >
                   <User className="w-4 h-4" />
                   Full name
                 </label>
                 <input
+                  id="name"
+                  autoComplete="name"
                   type="text"
                   placeholder="Rajibul Hazari"
                   value={formData.name}
@@ -86,12 +92,17 @@ const SignUp = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80 milky:text-gray-800/80 flex items-center gap-2">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-white/80 milky:text-gray-800/80 flex items-center gap-2"
+                >
                   <Mail className="w-4 h-4" />
                   Email
                 </label>
                 <div className="relative">
                   <input
+                    id="email"
+                    autoComplete="email"
                     type="email"
                     placeholder="rajibulhazari@gmail.com"
                     value={formData.email}
@@ -106,11 +117,16 @@ const SignUp = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80 milky:text-gray-800/80 flex items-center gap-2">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-white/80 milky:text-gray-800/80 flex items-center gap-2"
+                >
                   <Lock className="w-4 h-4" />
                   Password
                 </label>
                 <input
+                  id="password"
+                  autoComplete="new-passord"
                   type="password"
                   placeholder="******"
                   value={formData.password}

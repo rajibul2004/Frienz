@@ -1,5 +1,6 @@
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { authApis } from '../api/authApis'
+import { disconnectSocket } from "../lib/socket";
 export const authHooks = {
     useLogin: () => {
         const queryClient = useQueryClient();
@@ -28,6 +29,7 @@ export const authHooks = {
         const { mutateAsync, isPending, error } = useMutation({
             mutationFn: authApis.logout,
             onSuccess: () => {
+                disconnectSocket();
                 queryClient.removeQueries({ queryKey: ["user"] }); // Clear user data on logout
             },
         });

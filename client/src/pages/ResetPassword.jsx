@@ -202,13 +202,15 @@ const ResetPassword = () => {
 
               <form onSubmit={onEmailSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/80 milky:text-gray-800/80 ">
+                  <label htmlFor="email" className="text-sm font-medium text-white/80 milky:text-gray-800/80 ">
                     Email Address
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40 milky:text-gray-900/40" />
                     <input
                       type="email"
+                      id="email"
+                      autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="rajibul@gmail.com"

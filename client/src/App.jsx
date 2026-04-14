@@ -18,6 +18,7 @@ import UserProfile from "./pages/UserProfile";
 import Chat from "./pages/Chat";
 
 function App() {
+
   return (
     <div className="min-h-screen w-full flex flex-col ">
       {/* <Navbar /> */}
@@ -80,7 +81,7 @@ function App() {
           element={
             <PrivateRoute>
               <Layout showSidebar={false}>
-                <UserProfile/>
+                <UserProfile />
               </Layout>
             </PrivateRoute>
           }
@@ -107,8 +108,14 @@ function App() {
           }
         />
         <Route
-        path="/chat"
-        element={<Chat/>}
+          path="/chat/:id"
+          element={
+            <PrivateRoute>
+              <Layout showSidebar={false}>
+                <Chat />
+              </Layout>
+            </PrivateRoute>
+          }
         />
       </Routes>
       <Toaster

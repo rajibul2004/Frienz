@@ -24,8 +24,11 @@ export const authApis = {
         try {
             const response = await axiosInstance.get('/auth/me');
             return response.data?.user || null;
-        } catch {
-            return null;
+        } catch (err) {
+            if (err.response?.status === 401) {
+                return null; // ✅ not logged in (NOT an error)
+            }
+            throw err;
         }
     },
     sendResetOtp: async ({ email }) => {
@@ -64,7 +67,7 @@ export const authApis = {
             return response.data.user
         }
         catch (err) {
-            console.log("Error",err.message)
+            console.log("Error", err.message)
         }
     }
 }

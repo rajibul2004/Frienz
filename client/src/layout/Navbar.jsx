@@ -39,7 +39,7 @@ const Navbar = () => {
   const publicPages = isLogin || isVerifyPage || isSignup || isReset;
 
   return (
-    <nav className="bg-base-200/50 backdrop-blur-md border-b border-base-300 sticky top-0 z-30 h-16 flex items-center">
+    <nav className="bg-base-200/50 backdrop-blur-md border-b border-base-300 sticky top-0 z-30 h-16 flex items-center ">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between w-full">
           <button

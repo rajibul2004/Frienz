@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { initializeSocket, disconnectSocket } from "../lib/socket";
-
+import { authHooks } from "../hooks/authHooks";
 const SocketContext = createContext();
 
 export const useSocket = () => {
@@ -12,11 +12,20 @@ export const useSocket = () => {
 };
 
 export const SocketProvider = ({ children }) => {
+  const { isAuthenticated, isLoading } = authHooks.useGetUser();
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
-    const newSocket = initializeSocket(); // no token needed
+    if (isLoading) return;
+    if (!isAuthenticated) {
+      disconnectSocket(); // cleanup if user logged out
+      setSocket(null);
+      setIsConnected(false);
+      return;
+    }
+    const newSocket = initializeSocket();
     setSocket(newSocket);
 
     const handleConnect = () => {
@@ -43,7 +52,21 @@ export const SocketProvider = ({ children }) => {
       newSocket.off("connect_error", handleError);
       disconnectSocket(); // 🔥 important
     };
-  }, []);
+  }, [isAuthenticated, isLoading]);
+
+    useEffect(() => {
+    if (!socket) return;
+
+    const handleOnlineUsers = (users) => {
+      setOnlineUsers(users);
+    };
+
+    socket.on("online-users", handleOnlineUsers);
+
+    return () => {
+      socket.off("online-users", handleOnlineUsers);
+    };
+  }, [socket]);
 
   // Emit event
   const emit = (event, data) => {
@@ -57,10 +80,16 @@ export const SocketProvider = ({ children }) => {
 
   // Listen to event
   const on = (event, callback) => {
-    if (!socket) return;
+    if (!socket) return () => {};
     socket.on(event, callback);
     return () => socket.off(event, callback);
   };
+
+
+
+  on("online-users", (users) => {
+    setOnlineUsers(users);
+  });
 
   // Optional manual disconnect
   const disconnect = () => {
@@ -75,6 +104,7 @@ export const SocketProvider = ({ children }) => {
         socket,
         isConnected,
         emit,
+        onlineUsers,
         on,
         disconnect,
       }}
