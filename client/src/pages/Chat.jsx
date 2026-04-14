@@ -309,7 +309,7 @@ const Chat = () => {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
+              <div className="flex-1 overflow-y-auto p-4 ">
                 {/* User Info */}
                 <div className="text-center mb-6">
                   <div className="w-20 h-20 rounded-full bg-linear-to-r from-gray-400 to-slate-400 p-1 mx-auto mb-3">

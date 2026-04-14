@@ -96,7 +96,7 @@ const Navbar = () => {
                       className="fixed inset-0 z-40 cursor-pointer"
                       onClick={() => setShowProfileMenu(false)}
                     ></div>
-                    <div className="bg-gray-900 milky:bg-white absolute right-0 mt-2 w-56  backdrop-blur-xl border rounded-xl shadow-2xl overflow-hidden z-50">
+                    <div className="active absolute right-0 mt-2 w-56  backdrop-blur-xl border rounded-xl shadow-2xl overflow-hidden z-50">
                       {/* User info header */}
                       <div className="px-4 py-3 border-b border-base-300">
                         <p className="text-sm font-medium text-base-content">

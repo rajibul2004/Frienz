@@ -93,7 +93,7 @@ const ThemeSelector = () => {
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               className="absolute right-0 mt-2 w-72 z-50"
             >
-              <div className="bg-gray-900 milky:bg-white backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden">
+              <div className="active backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden">
                 <div className="p-4 border-b border-base-300">
                   <h3 className="text-sm font-semibold text-base-content flex items-center gap-2">
                     <Palette className="w-4 h-4 text-primary" />
