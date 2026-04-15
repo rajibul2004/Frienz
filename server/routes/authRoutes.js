@@ -1,6 +1,6 @@
 import express from 'express';
 import { register, login, logout, sendResetOtp, resetPassword, onboard, verifyResetOtp, getUser } from '../controller/authController.js';
-import extractUserId from '../middleware/extractUerId.js'
+import extractUserId from '../middleware/extractUserId.js'
 import attachUser from '../middleware/attachUser.js';
 
 const router = express.Router();
@@ -22,7 +22,7 @@ router.get('/me', extractUserId, attachUser, (req, res) => {
     });
 });
 
-router.get('/user/:userId',getUser);
+router.get('/user/:userId', getUser);
 
 
 export default router;

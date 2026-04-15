@@ -43,13 +43,17 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { format } from "date-fns";
 import { useChat } from "../hooks/useChat";
+import MessageBubble from "../components/chat/MessageBubble";
+import { authHooks } from "../hooks/authHooks";
 
 const Chat = () => {
   const navigate = useNavigate();
   const { id: recipientId } = useParams();
 
   const { recipient, isOnline, messages, sendMessage } = useChat(recipientId);
+  const {user}=authHooks.useGetUser();
 
   const [showMenu, setShowMenu] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -79,6 +83,33 @@ const Chat = () => {
     }
   };
 
+  const formatTime = (timestamp) => {
+    return format(new Date(timestamp), "h:mm a");
+  };
+
+  const groupMessagesByDate = (msgs) => {
+    const groups = {};
+    msgs.forEach((msg) => {
+      const date = format(new Date(msg.createdAt), "yyyy-MM-dd");
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(msg);
+    });
+    return groups;
+  };
+
+  const formatDateHeader = (dateStr) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) return "Today";
+    if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+    return format(date, "MMMM d, yyyy");
+  };
+
+  const groupedMessages = groupMessagesByDate(messages);
+
   return (
     <div className=" flex flex-col justify-between bg-white/10 milky:bg-gray-900/10 overflow-hidden  lg:max-w-4xl mx-auto h-full z-10">
       {/* Header */}
@@ -107,8 +138,8 @@ const Chat = () => {
 
           <div>
             <h3 className="font-semibold">{recipient?.name}</h3>
-            <p className="text-xs text-secondary-theme flex items-center gap-1">
-              {isOnline ? <>Online</> : <>Offline</>}
+            <p className="text-xs opacity-70 flex items-center gap-1">
+              {isOnline ? "Online" : "Offline"}
             </p>
           </div>
         </div>
@@ -255,9 +286,28 @@ const Chat = () => {
               </p>
             </div>
           ) : (
-            messages.map((msg) => (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm">{msg}</p>
+            Object.entries(groupedMessages).map(([date, msgs]) => (
+              <div key={date}>
+                {/* Date Separator */}
+                <div className="flex items-center justify-center my-2">
+                  <div className="border rounded-full px-3 text-center">
+                    <span className="text-xs opacity-70">
+                      {formatDateHeader(date)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Messages */}
+                <div className="space-y-2">
+                  {msgs.map((message) => (
+                    <div id={`message-${message._id}`} key={message._id}>
+                      <MessageBubble
+                        message={message}
+                        isOwn={message.from._id === user?._id}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             ))
           )}
@@ -300,7 +350,9 @@ const Chat = () => {
               className="absolute right-0 top-0 bottom-0 w-80 active border-l border-white/10 shadow-xl z-30 flex flex-col"
             >
               <div className="flex items-center justify-between p-4 border-b border-gray-900/30 milky:border-white/30">
-                <h3 className="font-semibold milky:text-gray-900 text-white">Chat Info</h3>
+                <h3 className="font-semibold milky:text-gray-900 text-white">
+                  Chat Info
+                </h3>
                 <button
                   onClick={() => setShowInfo(false)}
                   className="p-1 rounded-lg transition-colors"
@@ -319,9 +371,7 @@ const Chat = () => {
                       className="w-full h-full rounded-full object-cover"
                     />
                   </div>
-                  <h3 className="text-xl font-bold">
-                    {recipient?.name}
-                  </h3>
+                  <h3 className="text-xl font-bold">{recipient?.name}</h3>
                   <p className="text-white/60 milky:text-gray-900/60 text-sm">
                     {recipient?.bio || "No bio yet"}
                   </p>
@@ -332,7 +382,9 @@ const Chat = () => {
                   <div className="flex items-center gap-3 p-3">
                     <MapPin className="w-4 h-4 text-white/60 milky:text-gray-900/60" />
                     <div>
-                      <p className="text-xs text-white/60 milky:text-gray-900/60">Location</p>
+                      <p className="text-xs text-white/60 milky:text-gray-900/60">
+                        Location
+                      </p>
                       <p className="text-sm ">
                         {recipient?.location || "Not specified"}
                       </p>
@@ -342,7 +394,9 @@ const Chat = () => {
                   <div className="flex items-center gap-3 p-3">
                     <Languages className="w-4 h-4 text-white/60 milky:text-gray-900/60" />
                     <div>
-                      <p className="text-xs text-white/60 milky:text-gray-900/60">Language</p>
+                      <p className="text-xs text-white/60 milky:text-gray-900/60">
+                        Language
+                      </p>
                       <p className="text-sm ">
                         {recipient?.nativeLang || "Not specified"}
                       </p>
@@ -356,7 +410,7 @@ const Chat = () => {
                         Member Since
                       </p>
                       <p className="text-sm text-primary-theme">
-                          {recipient?.memberSince}
+                        {recipient?.memberSince}
                       </p>
                     </div>
                   </div>
@@ -427,9 +481,7 @@ const Chat = () => {
             <Send className="size-5" />
           </button>
 
-          <button
-            className={`p-2 rounded-xl transition-colors animate-pulse`}
-          >
+          <button className={`p-2 rounded-xl transition-colors animate-pulse`}>
             <Mic className="size-5" />
           </button>
         </div>

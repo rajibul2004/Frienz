@@ -1,6 +1,8 @@
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
+import UserModel from '../models/userModel.js';
+import MessageModel from '../models/messageModel.js';
 
 const onlineUsers = new Map();
 
@@ -43,14 +45,44 @@ export const initializeSocket = (server, corsOptions) => {
         socket.broadcast.emit("online-users", Array.from(onlineUsers.keys()));
 
         // Private message
-        socket.on('send-message', async ({ to, message, type = 'text', replyTo = null, tempId="abc123", emojiReaction = null }) => {
+        socket.on('send-message', async ({ to, message, type = 'text', replyTo = null, tempId = "abc123", emojiReaction = null }) => {
             try {
                 const from = userId;
                 if (!to || (type === 'text' && (!message || message.trim() === ''))) {
                     return socket.emit('message-error', { error: 'Invalid message', tempId });
                 }
-                console.log(`📩 Message from ${from} to ${to}:`, { message, type, replyTo, emojiReaction });
-               
+                const recipient = await UserModel.findById(to).select("_id name profilePic");
+                if (!recipient) {
+                    socket.emit('message-error', { error: 'Recipient not found' });
+                    return;
+                }
+                const recipientSocketId = onlineUsers.get(to);
+                const initialStatus = recipientSocketId ? 'delivered' : 'sent';
+
+                const newMessage = new MessageModel({
+                    from,
+                    to,
+                    message: message.trim(),
+                    status: initialStatus,
+                    type,
+                });
+                await newMessage.save();
+
+                const populatedMessage = await MessageModel.findById(newMessage._id)
+                    .populate('from', 'name profilePic')
+                    .populate('to', 'name profilePic')
+                    .lean();
+
+                const messageData = {
+                    _id: populatedMessage._id,
+                    from: populatedMessage.from,
+                    to: populatedMessage.to,
+                    message: populatedMessage.message,
+                    type: populatedMessage.type,
+                    status: populatedMessage.status,
+                    createdAt: populatedMessage.createdAt
+                };
+                socket.emit('message-sent', { ...messageData, tempId });
             } catch (error) {
                 console.error('Message error:', error);
                 socket.emit('message-error', { error: error.message, tempId });

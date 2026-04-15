@@ -1,7 +1,7 @@
 import express from 'express';
-import { getRecommendedUsers,sendFriendRequest,getFriendRequest,acceptFriendRequest,getFriends,getOutGoingReq,removeFriend } from '../controller/connectionController.js';
+import { getRecommendedUsers, sendFriendRequest, getFriendRequest, acceptFriendRequest, getFriends, getOutGoingReq, removeFriend } from '../controller/connectionController.js';
 
-import extractUserId from '../middleware/extractUerId.js';
+import extractUserId from '../middleware/extractUserId.js';
 import attachUser from '../middleware/attachUser.js';
 
 const router = express.Router();

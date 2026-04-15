@@ -4,7 +4,7 @@ let socket;
 
 export const initializeSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:4000", {
+    socket = io("https://frienz-yqq1.onrender.com", {
       withCredentials: true, 
     });
   }

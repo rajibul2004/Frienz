@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSocket } from "../context/SocketContext";
-import { messageApis } from "../api/messageApis";
+import { messageApis } from "../api/chatApis";
 import { authHooks } from "./authHooks";
 import { toast } from "react-hot-toast";
 

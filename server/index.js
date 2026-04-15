@@ -14,6 +14,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 import authRoutes from './routes/authRoutes.js';
 import connectionRoutes from './routes/connectionRoutes.js';
+import messagerouter from './routes/messageRoutes.js'
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ if(NODE_ENV === 'development') {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/connections', connectionRoutes);
+app.use('/api/chats',messagerouter)
 
 app.get('/api/health', (req, res) => {
   res.json({
