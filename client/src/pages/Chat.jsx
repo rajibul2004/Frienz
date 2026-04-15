@@ -120,7 +120,7 @@ const Chat = () => {
             onClick={() => setShowSearch(!showSearch)}
             className="p-1 md:p-2 rounded-full"
           >
-            <Search className="size-3 md:size-5" />
+            <Search className="size-5" />
           </button>
 
           {/* Info Button */}
@@ -128,7 +128,7 @@ const Chat = () => {
             onClick={() => setShowInfo(!showInfo)}
             className="p-1 md:p-2 rounded-full"
           >
-            <Info className="size-3 md:size-5" />
+            <Info className="size-5" />
           </button>
 
           {/* Pinned Messages Button */}
@@ -136,7 +136,7 @@ const Chat = () => {
             onClick={() => setShowPinned(!showPinned)}
             className="p-1 md:p-2 rounded-full relative"
           >
-            <Pin className="size-3 md:size-5" />
+            <Pin className="size-5" />
             {/* {pinnedMessages.length > 0 && (
               <span className="absolute top-0 right-0 w-2 h-2 active rounded-full" />
             )} */}
@@ -147,7 +147,7 @@ const Chat = () => {
             onClick={() => handleStartCall("audio")}
             className="p-1 md:p-2 rounded-full"
           >
-            <Phone className="size-3 md:size-5" />
+            <Phone className="size-5" />
           </button>
 
           {/* Video Call Button */}
@@ -155,7 +155,7 @@ const Chat = () => {
             onClick={() => handleStartCall("video")}
             className="p-1 md:p-2 rounded-full"
           >
-            <Video className="size-3 md:size-5" />
+            <Video className="size-5" />
           </button>
 
           {/* Menu Button */}
@@ -164,7 +164,7 @@ const Chat = () => {
               onClick={() => setShowMenu(!showMenu)}
               className="p-1 md:p-2 rounded-full"
             >
-              <MoreVertical className="size-3 md:size-5" />
+              <MoreVertical className="size-5" />
             </button>
 
             <AnimatePresence>
@@ -378,11 +378,11 @@ const Chat = () => {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-white/30 milky:border-gray-900/30 shadow-sm  bg-white/20 milky:bg-gray-900/20 backdrop-blur-md p-1.5 md:p-3 h-fit">
+      <div className="border-t border-white/30 milky:border-gray-900/30 shadow-sm  bg-white/20 milky:bg-gray-900/20 backdrop-blur-md p-1.5 md:p-3 h-fit ">
         <div className="flex items-center gap-1">
           {/* Attach Button */}
           <button className="p-1 md:p-2 rounded-xl">
-            <Paperclip className="size-3 md:size-5" />
+            <Paperclip className="size-5" />
           </button>
           <input
             type="file"
@@ -395,13 +395,13 @@ const Chat = () => {
             onClick={() => fileInputRef.current?.click()}
             className="p-1 md:p-2 rounded-xl "
           >
-            <ImageIcon className="size-3 md:size-5" />
+            <ImageIcon className="size-5" />
           </button>
 
           {/* Emoji Button */}
           <div className="relative">
             <button className="p-1 md:p-2  rounded-xl ">
-              <Smile className="size-3 md:size-5" />
+              <Smile className="size-5" />
             </button>
           </div>
 
@@ -415,8 +415,8 @@ const Chat = () => {
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 px-2 py-1 md:px-4 md:py-2 Input rounded-xl    resize-none max-h-18 md:max-h-32"
-            style={{ minHeight: "44px" }}
+            className="flex-1 Input rounded-xl resize-none w-full max-h-18 md:max-h-32 px-0.5 md:px-2 py-1"
+            style={{ minHeight: "34px" }}
           />
 
           {/* Voice / Send Button */}
@@ -424,13 +424,13 @@ const Chat = () => {
             onClick={handleSendMessage}
             className="p-1 md:p-2 rounded-full"
           >
-            <Send className="size-3 md:size-5" />
+            <Send className="size-5" />
           </button>
 
           <button
-            className={`p-2 rounded-xl transition-colors ${"bg-error text-white animate-pulse"}`}
+            className={`p-2 rounded-xl transition-colors animate-pulse`}
           >
-            <Mic className="size-3 md:size-5" />
+            <Mic className="size-5" />
           </button>
         </div>
       </div>
