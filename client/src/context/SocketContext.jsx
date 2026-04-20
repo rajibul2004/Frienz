@@ -54,10 +54,11 @@ export const SocketProvider = ({ children }) => {
     };
   }, [isAuthenticated, isLoading]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!socket) return;
 
     const handleOnlineUsers = (users) => {
+      console.log("Online users:", users);
       setOnlineUsers(users);
     };
 
@@ -84,12 +85,6 @@ export const SocketProvider = ({ children }) => {
     socket.on(event, callback);
     return () => socket.off(event, callback);
   };
-
-
-
-  on("online-users", (users) => {
-    setOnlineUsers(users);
-  });
 
   // Optional manual disconnect
   const disconnect = () => {

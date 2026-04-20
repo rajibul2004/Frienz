@@ -28,7 +28,7 @@ const Layout = ({ children, showSidebar = true,showNavbar=true }) => {
             </main>
 
             {/* Optional Footer - can be added later if needed */}
-            <footer className="text-center py-4 text-white/20 milky:text-gray-900/20 text-xs border-t border-white/5 milky:border-gray-900/5">
+            <footer className="h-10 flex items-center justify-center text-white/20 milky:text-gray-900/20 text-xs border-t border-white/5 milky:border-gray-900/5">
               <p>© 2024 Frienz. All rights reserved.</p>
             </footer>
           </div>

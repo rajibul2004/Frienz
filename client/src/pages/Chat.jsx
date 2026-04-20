@@ -52,8 +52,14 @@ const Chat = () => {
   const navigate = useNavigate();
   const { id: recipientId } = useParams();
 
-  const { recipient, isOnline, messages, sendMessage } = useChat(recipientId);
-  const {user}=authHooks.useGetUser();
+  const {
+    recipient,
+    isOnline,
+    messages,
+    sendMessage,
+    loading: messagesLoading,
+  } = useChat(recipientId);
+  const { user } = authHooks.useGetUser();
 
   const [showMenu, setShowMenu] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -111,7 +117,7 @@ const Chat = () => {
   const groupedMessages = groupMessagesByDate(messages);
 
   return (
-    <div className=" flex flex-col justify-between bg-white/10 milky:bg-gray-900/10 overflow-hidden  lg:max-w-4xl mx-auto h-full z-10">
+    <div className=" flex flex-col justify-between bg-white/10 milky:bg-gray-900/10 overflow-hidden  lg:max-w-4xl mx-auto h-[calc(100dvh-4rem-3rem)] z-10">
       {/* Header */}
       <div className="flex items-center justify-between px-2 md:px-4 py-1.5 md:py-3 bg-white/20 milky:bg-gray-900/20 backdrop-blur-md border-b border-white/30 milky:border-gray-900/30 shadow-sm h-fit">
         {/* Left Section */}
@@ -268,12 +274,16 @@ const Chat = () => {
         )}
       </AnimatePresence>
       {/* main content */}
-      <div className="size-full flex flex-col relative flex-1 overflow-hidden">
+      <div className="  flex flex-col relative flex-1 overflow-hidden">
         <div
           ref={messagesContainerRef}
           className="flex flex-col overflow-y-auto p-4 space-y-4 no-scrollbar "
         >
-          {messages.length === 0 ? (
+          {messagesLoading ? (
+            <div className="flex items-center justify-center size-full">
+              <div className="w-8 h-8 border-3  border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <div className="w-20 h-20  rounded-full flex items-center justify-center mb-4">
                 <MessageCircle className="w-10 h-10 text-secondary-theme" />
@@ -469,7 +479,7 @@ const Chat = () => {
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 Input rounded-xl resize-none w-full max-h-18 md:max-h-32 px-0.5 md:px-2 py-1"
+            className="flex-1 Input rounded-xl resize-none w-full max-h-18 md:max-h-32 px-2 md:px-2 py-1"
             style={{ minHeight: "34px" }}
           />
 

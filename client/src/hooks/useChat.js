@@ -8,69 +8,136 @@ export const useChat = (recipientId) => {
     const { emit, on, isConnected, socket, onlineUsers } = useSocket();
     const { user } = authHooks.useGetUser();
     const { user: recipient } = authHooks.useGetUserById(recipientId)
-    const isOnline = onlineUsers.includes(recipientId);
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const pendingMessagesRef = useRef(new Map());
+    const isOnline = onlineUsers?.includes(recipientId);
+
     const typingTimeoutRef = useRef(null);
     const messagesEndRef = useRef(null);
 
 
+    const cache = useRef({});
+
     const loadHistory = useCallback(async () => {
+        if (cache.current[recipientId]) {
+            setMessages(cache.current[recipientId]);
+            return;
+        }
+
         try {
             setLoading(true);
-            const messages = await chatApis.getConversation(recipientId);
-            setMessages(messages || []);
-        } catch (error) {
-            console.error('Failed to load messages:', error);
+            const data = await chatApis.getConversation(recipientId);
+            cache.current[recipientId] = data;
+            setMessages(data || []);
         } finally {
             setLoading(false);
         }
     }, [recipientId]);
 
     const scrollToBottom = () => {
-        setTimeout(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
+
+    const replaceTempMessage = useCallback((tempId, realMessage) => {
+        setMessages((prev) =>
+            prev.map((msg) =>
+                msg._id === tempId ? { ...realMessage, pending: false } : msg
+            )
+        );
+    }, []);
 
     useEffect(() => {
         if (messages.length) scrollToBottom();
     }, [messages]);
 
 
-    const handleNewMessage = (msg) => {
+    const handleNewMessage = useCallback((msg) => {
         setMessages(prev => {
-            // if (prev.some(m => m._id === msg._id)) return prev;
+            if (prev.some(m => m._id === msg._id)) return prev;
             return [...prev, msg];
         });
-    };
+    }, []);
+
+    const handleMessageSent = useCallback((msg) => {
+        if (msg.tempId) {
+            replaceTempMessage(msg.tempId, msg);
+        } else {
+            setMessages((prev) => [...prev, msg]);
+        }
+    }, [replaceTempMessage]);
+
+    const handleDelivered = useCallback(({ messageIds, deliveredAt }) => {
+        setMessages(prev =>
+            prev.map(msg =>
+                messageIds.includes(msg._id)
+                    ? { ...msg, status: 'delivered', deliveredAt }
+                    : msg
+            )
+        );
+    }, []);
+    
 
     useEffect(() => {
         if (!socket || !recipientId) return;
 
         loadHistory();
 
-        on('new-message', handleNewMessage);
-    }, [socket, on, recipientId]);
+        const cleanup1 = on('new-message', handleNewMessage);
+        const cleanup2 = on('message-sent', handleMessageSent);
+        const cleanup3 = on('messages-delivered', handleDelivered);
+        return () => {
+            cleanup1?.();
+            cleanup2?.();
+            cleanup3?.();
+        }
+    }, [socket, on, recipientId, loadHistory, handleNewMessage, handleMessageSent, handleDelivered]);
 
     const sendMessage = useCallback((text) => {
-        if (!text.trim() || text.trim() == "" || !recipientId || !isConnected) return;
+        if (!text.trim() || !recipientId || !isConnected) return;
 
-        setMessages(prev => [...prev, text]);
+        const tempId = crypto.randomUUID();
+
+        const messageData = {
+            _id: tempId,
+            from: {
+                _id: user?._id,
+                name: user?.name,
+                profilePic: user?.profilePic,
+            },
+            to: { _id: recipientId },
+            message: text.trim(),
+            type: "text",
+            createdAt: new Date().toISOString(),
+            pending: true,
+        };
+        setMessages(prev => [...prev, messageData]);
 
         emit('send-message', {
             to: recipientId,
             message: text.trim(),
+            tempId: tempId,
         });
-    }, [recipientId, isConnected, emit]);
+    }, [recipientId, isConnected, emit, user]);
+
+    const retryMessage = useCallback(
+        (tempId) => {
+            const msg = messages.find((m) => m._id === tempId);
+            if (!msg) return;
+
+            setMessages((prev) => prev.filter((m) => m._id !== tempId));
+            sendMessage(msg.message);
+        },
+        [messages, sendMessage]
+    );
 
     return {
         recipient,
         isOnline,
         isConnected,
         sendMessage,
-        messages
+        messages,
+        loading,
+        retryMessage,
     };
 };

@@ -46,5 +46,8 @@ messageSchema.pre('validate', function () {
     }
 });
 
+// Indexes
+messageSchema.index({ conversationId: 1, createdAt: -1 });
+
 const MessageModel = mongoose.model("Message", messageSchema);
 export default MessageModel;

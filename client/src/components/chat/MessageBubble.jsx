@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, CheckCheck, Copy, Reply, Trash2, Smile, RefreshCw, AlertCircle } from "lucide-react";
+import {
+  Check,
+  CheckCheck,
+  Copy,
+  Reply,
+  Trash2,
+  Smile,
+  RefreshCw,
+  AlertCircle,
+} from "lucide-react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 
@@ -20,8 +29,6 @@ const MessageBubble = ({ message, isOwn }) => {
     toast.success("Message copied!");
     setShowActions(false);
   };
-
-
 
   // Message type rendering
   const renderMessageContent = () => {
@@ -68,6 +75,37 @@ const MessageBubble = ({ message, isOwn }) => {
     }
   };
 
+  const getStatusIcon = () => {
+    if (!isOwn) return null;
+
+    // Failed message - show retry button
+    if (message.failed) {
+      return (
+        <button
+          onClick={handleRetry}
+          className="text-error hover:text-error/80 transition-colors ml-1"
+          title="Retry sending"
+        >
+          <RefreshCw className="w-3 h-3" />
+        </button>
+      );
+    }
+
+    if (message.status==="pending") {
+      return (
+        <div className="w-3 h-3 rounded-full border border-gray-400 animate-spin ml-1" />
+      );
+    }
+    if (message.status === "read") {
+      return <CheckCheck className="w-3 h-3 link-text ml-1" />;
+    }
+    if (message.status === "delivered") {
+      return <CheckCheck className="w-3 h-3 ml-1" />;
+    }
+    return <Check className="w-3 h-3 ml-1" />;
+  };
+
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -77,7 +115,7 @@ const MessageBubble = ({ message, isOwn }) => {
       className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-2 group`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
-      onClick={() => setShowActions(prev => !prev)}
+      onClick={() => setShowActions((prev) => !prev)}
     >
       <div className="relative max-w-[70%]">
         {/* Main Message Bubble */}
@@ -88,7 +126,6 @@ const MessageBubble = ({ message, isOwn }) => {
               : "bg-white/5 milky:bg-gray-400/60 border border-white/40 milky:border-gray-900/40 rounded-bl-sm"
           }`}
         >
-
           {/* Sender Name (for group chats) */}
           {!isOwn && message.from?.name && (
             <p className="text-[10px] font-semibold link-text mb-0.1">
@@ -101,16 +138,16 @@ const MessageBubble = ({ message, isOwn }) => {
 
           {/* Message Metadata */}
           <div
-            className={`flex items-center gap-1 mt-1 ${
+            className={`flex items-center gap-0.5 mt-0.5 ${
               isOwn ? "justify-end" : "justify-start"
             }`}
           >
             <span className="text-[8px] opacity-70">
               {formatTime(message.createdAt)}
             </span>
+            {getStatusIcon()}
           </div>
         </div>
-
 
         {/* Message Actions (on hover) - Don't show for failed messages */}
         {!message.failed && showActions && (
@@ -131,8 +168,6 @@ const MessageBubble = ({ message, isOwn }) => {
               >
                 <Copy className="w-3 h-3" />
               </button>
-
-              
 
               {/* Reaction Button */}
               <div className="relative">
@@ -155,7 +190,17 @@ const MessageBubble = ({ message, isOwn }) => {
                         isOwn ? "right-0" : "left-0"
                       }`}
                     >
-                      {["❤️", "😂", "😮", "😢", "👍", "👎", "🎉", "🔥", "😍"].map((emoji) => (
+                      {[
+                        "❤️",
+                        "😂",
+                        "😮",
+                        "😢",
+                        "👍",
+                        "👎",
+                        "🎉",
+                        "🔥",
+                        "😍",
+                      ].map((emoji) => (
                         <button
                           key={emoji}
                           onClick={() => {

@@ -40,12 +40,55 @@ export const initializeSocket = (server, corsOptions) => {
         const userId = socket.userId;
         console.log(`✅ User connected: ${userId}`);
 
-        onlineUsers.set(userId, socket.id);
+        
+        if (!onlineUsers.has(userId)) {
+            onlineUsers.set(userId, new Set());
+        }
+        onlineUsers.get(userId).add(socket.id);
         socket.join(`user:${userId}`);
-        socket.broadcast.emit("online-users", Array.from(onlineUsers.keys()));
+        io.emit("online-users", Array.from(onlineUsers.keys()));
+        
+        // ✅ AUTO MARK OLD MESSAGES AS DELIVERED WHEN USER COMES ONLINE
+        (async () => {
+            try {
+                const undeliveredMessages = await MessageModel.find({
+                    to: userId,
+                    status: 'sent'
+                }).select('_id from');
 
+                if (undeliveredMessages.length === 0) return;
+
+                const messageIds = undeliveredMessages.map(m => m._id);
+
+                const deliveredAt = new Date();
+                await MessageModel.updateMany(
+                    { _id: { $in: messageIds } },
+                    { status: 'delivered', deliveredAt }
+                );
+
+                const senderUpdates = {};
+                undeliveredMessages.forEach(msg => {
+                    const senderId = msg.from.toString();
+                    if (!senderUpdates[senderId]) senderUpdates[senderId] = [];
+                    senderUpdates[senderId].push(msg._id);
+                });
+
+                Object.entries(senderUpdates).forEach(([senderId, ids]) => {
+                    const senderSocketId = onlineUsers.get(senderId);
+                    if (senderSocketId) {
+                        io.to(senderSocketId).emit('messages-delivered', {
+                            messageIds: ids,
+                            deliveredAt
+                        });
+                    }
+                });
+
+            } catch (err) {
+                console.error("Auto-delivery error:", err);
+            }
+        })();
         // Private message
-        socket.on('send-message', async ({ to, message, type = 'text', replyTo = null, tempId = "abc123", emojiReaction = null }) => {
+        socket.on('send-message', async ({ to, message, type = 'text', replyTo = null, tempId, emojiReaction = null }) => {
             try {
                 const from = userId;
                 if (!to || (type === 'text' && (!message || message.trim() === ''))) {
@@ -56,14 +99,14 @@ export const initializeSocket = (server, corsOptions) => {
                     socket.emit('message-error', { error: 'Recipient not found' });
                     return;
                 }
-                const recipientSocketId = onlineUsers.get(to);
-                const initialStatus = recipientSocketId ? 'delivered' : 'sent';
+                const recipientSockets = onlineUsers.get(to);
+                const isRecipientOnline = recipientSockets && recipientSockets.size > 0;
 
                 const newMessage = new MessageModel({
                     from,
                     to,
                     message: message.trim(),
-                    status: initialStatus,
+                    status: isRecipientOnline ? 'delivered' : 'sent',
                     type,
                 });
                 await newMessage.save();
@@ -83,17 +126,67 @@ export const initializeSocket = (server, corsOptions) => {
                     createdAt: populatedMessage.createdAt
                 };
                 socket.emit('message-sent', { ...messageData, tempId });
+                if (isRecipientOnline) {
+                    recipientSockets.forEach(socketId => {
+                        io.to(socketId).emit('new-message', messageData);
+                    });
+
+                    socket.emit('messages-delivered', {
+                        messageIds: [messageData._id],
+                        deliveredAt: new Date()
+                    });
+                }
             } catch (error) {
                 console.error('Message error:', error);
                 socket.emit('message-error', { error: error.message, tempId });
             }
         });
 
+        // Mark messages as delivered
+        socket.on('mark-delivered', async ({ messageIds }) => {
+            try {
+                if (!messageIds.length) return;
+                await MessageModel.updateMany(
+                    {
+                        _id: { $in: messageIds },
+                        to: userId,
+                        status: 'sent'
+                    },
+                    { status: 'delivered', deliveredAt: new Date() }
+                );
+                // Notify senders about delivery
+                const messages = await MessageModel.find({ _id: { $in: messageIds } }).select('from');
+                const senderUpdates = {};
+                messages.forEach(msg => {
+                    const senderId = msg.from.toString();
+                    if (!senderUpdates[senderId]) senderUpdates[senderId] = [];
+                    senderUpdates[senderId].push(msg._id);
+                });
+                Object.entries(senderUpdates).forEach(([senderId, ids]) => {
+                    const senderSocketId = onlineUsers.get(senderId);
+                    if (senderSocketId) {
+                        io.to(senderSocketId).emit('messages-delivered', {
+                            messageIds: ids,
+                            deliveredAt: new Date()
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Mark delivered error:', error);
+            }
+        });
+
         socket.on('disconnect', () => {
             console.log(`❌ User disconnected: ${userId}`);
 
-            onlineUsers.delete(userId);
-            socket.broadcast.emit('user-offline', { userId });
+            const userSockets = onlineUsers.get(userId);
+            if (userSockets) {
+                userSockets.delete(socket.id);
+                if (userSockets.size === 0) {
+                    onlineUsers.delete(userId);
+                }
+            }
+            io.emit("online-users", Array.from(onlineUsers.keys()));
         });
     });
 

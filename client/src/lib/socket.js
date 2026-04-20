@@ -10,6 +10,8 @@ export const initializeSocket = () => {
   }
   return socket;
 };
+// https://frienz-yqq1.onrender.com
+
 
 export const disconnectSocket = () => {
   if (socket) {
