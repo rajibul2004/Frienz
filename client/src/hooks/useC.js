@@ -130,7 +130,7 @@ export const useChat = (recipientId) => {
     const cleanup1 = on("new-message", handleNewMessage);
     const cleanup2 = on("message-sent", handleMessageSent);
     const cleanup3 = on("message-error", handleMessageError);
-    const cleanup4 = on("user-typing", handleTyping);
+    const cleanup4 = on("user-start-typing", handleTyping);
     const cleanup5 = on("user-stop-typing", handleStopTyping);
     const cleanup6 = on("message-read", handleMessageRead);
 

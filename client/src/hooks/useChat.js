@@ -10,6 +10,7 @@ export const useChat = (recipientId) => {
     const { user: recipient } = authHooks.useGetUserById(recipientId)
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isTyping, setIsTyping] = useState(false);
 
     const isOnline = onlineUsers?.includes(recipientId);
 
@@ -35,9 +36,49 @@ export const useChat = (recipientId) => {
         }
     }, [recipientId]);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
+    const markAsRead = useCallback(() => {
+        const unreadIds = messages
+            .filter(msg =>
+                msg.to?._id === user._id &&
+                msg.from?._id === recipientId &&
+                msg.status !== 'read'
+            )
+            .map(msg => msg._id);
+
+        if (unreadIds.length > 0) {
+            emit('mark-read', {
+                messageIds: unreadIds,
+                from: recipientId
+            });
+        }
+    }, [messages, recipientId, user, emit]);
+
+    const sendTyping = useCallback(() => {
+        if (!recipientId) return;
+
+        emit("typing-start", { to: recipientId });
+
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
+
+        typingTimeoutRef.current = setTimeout(() => {
+            emit("typing-stop", { to: recipientId });
+        }, 1500);
+    }, [recipientId, emit]);
+
+    useEffect(() => {
+        const hasUnread = messages.some(
+            msg =>
+                msg.to?._id === user._id &&
+                msg.from?._id === recipientId &&
+                msg.status !== 'read'
+        );
+
+        if (hasUnread) {
+            markAsRead();
+        }
+    }, [messages, markAsRead, user, recipientId]);
 
     const replaceTempMessage = useCallback((tempId, realMessage) => {
         setMessages((prev) =>
@@ -47,9 +88,6 @@ export const useChat = (recipientId) => {
         );
     }, []);
 
-    useEffect(() => {
-        if (messages.length) scrollToBottom();
-    }, [messages]);
 
 
     const handleNewMessage = useCallback((msg) => {
@@ -76,7 +114,35 @@ export const useChat = (recipientId) => {
             )
         );
     }, []);
-    
+
+    const handleMessageRead = useCallback(({ messageIds, by, readAt }) => {
+        if (by !== recipientId) return;
+
+        const idSet = new Set(messageIds);
+
+        setMessages(prev =>
+            prev.map(msg =>
+                idSet.has(msg._id) && msg.from._id === user._id
+                    ? { ...msg, status: 'read', readAt }
+                    : msg
+            )
+        );
+    }, [recipientId, user]);
+
+    const handleTyping = useCallback(({ from }) => {
+        if (from !== recipientId) return;
+
+        setIsTyping(true);
+
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
+
+        typingTimeoutRef.current = setTimeout(() => {
+            setIsTyping(false);
+        }, 2000);
+    }, [recipientId]);
+
 
     useEffect(() => {
         if (!socket || !recipientId) return;
@@ -86,12 +152,22 @@ export const useChat = (recipientId) => {
         const cleanup1 = on('new-message', handleNewMessage);
         const cleanup2 = on('message-sent', handleMessageSent);
         const cleanup3 = on('messages-delivered', handleDelivered);
+        const cleanup4 = on('messages-read', handleMessageRead);
+        const cleanup5 = on('user-start-typing', handleTyping);
+        const cleanup6 = on('user-stop-typing', ({ from }) => {
+            if (from === recipientId) {
+                setIsTyping(false);
+            }
+        });
         return () => {
             cleanup1?.();
             cleanup2?.();
             cleanup3?.();
+            cleanup4?.();
+            cleanup5?.();
+            cleanup6?.();
         }
-    }, [socket, on, recipientId, loadHistory, handleNewMessage, handleMessageSent, handleDelivered]);
+    }, [socket, on, recipientId, loadHistory, handleNewMessage, handleMessageSent, handleDelivered, handleMessageRead]);
 
     const sendMessage = useCallback((text) => {
         if (!text.trim() || !recipientId || !isConnected) return;
@@ -136,6 +212,8 @@ export const useChat = (recipientId) => {
         isOnline,
         isConnected,
         sendMessage,
+        sendTyping,
+        isTyping,
         messages,
         loading,
         retryMessage,

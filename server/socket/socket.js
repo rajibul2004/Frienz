@@ -40,14 +40,14 @@ export const initializeSocket = (server, corsOptions) => {
         const userId = socket.userId;
         console.log(`✅ User connected: ${userId}`);
 
-        
+
         if (!onlineUsers.has(userId)) {
             onlineUsers.set(userId, new Set());
         }
         onlineUsers.get(userId).add(socket.id);
         socket.join(`user:${userId}`);
         io.emit("online-users", Array.from(onlineUsers.keys()));
-        
+
         // ✅ AUTO MARK OLD MESSAGES AS DELIVERED WHEN USER COMES ONLINE
         (async () => {
             try {
@@ -74,11 +74,14 @@ export const initializeSocket = (server, corsOptions) => {
                 });
 
                 Object.entries(senderUpdates).forEach(([senderId, ids]) => {
-                    const senderSocketId = onlineUsers.get(senderId);
-                    if (senderSocketId) {
-                        io.to(senderSocketId).emit('messages-delivered', {
-                            messageIds: ids,
-                            deliveredAt
+                    const senderSockets = onlineUsers.get(senderId);
+
+                    if (senderSockets) {
+                        senderSockets.forEach(socketId => {
+                            io.to(socketId).emit('messages-delivered', {
+                                messageIds: ids,
+                                deliveredAt
+                            });
                         });
                     }
                 });
@@ -164,16 +167,70 @@ export const initializeSocket = (server, corsOptions) => {
                 });
                 Object.entries(senderUpdates).forEach(([senderId, ids]) => {
                     const senderSocketId = onlineUsers.get(senderId);
-                    if (senderSocketId) {
-                        io.to(senderSocketId).emit('messages-delivered', {
-                            messageIds: ids,
-                            deliveredAt: new Date()
+                    if (senderSockets) {
+                        senderSockets.forEach(socketId => {
+                            io.to(socketId).emit('messages-delivered', {
+                                messageIds: ids,
+                                deliveredAt
+                            });
                         });
                     }
                 });
             } catch (error) {
                 console.error('Mark delivered error:', error);
             }
+        });
+
+        socket.on('mark-read', async ({ messageIds, from }) => {
+            try {
+                if (!messageIds?.length || from === userId) return;
+
+                const readAt = new Date();
+
+                // ✅ secure + correct query
+                await MessageModel.updateMany(
+                    {
+                        _id: { $in: messageIds },
+                        from: from,
+                        to: userId,
+                        status: { $in: ['sent', 'delivered'] }
+                    },
+                    {
+                        $set: { status: 'read', readAt }
+                    }
+                );
+
+                // ✅ always treat as array
+                const senderSockets = onlineUsers.get(from) || [];
+
+                senderSockets.forEach(socketId => {
+                    io.to(socketId).emit('messages-read', {
+                        messageIds,
+                        by: userId,
+                        readAt
+                    });
+                });
+
+            } catch (error) {
+                console.error('Mark read error:', error);
+            }
+        });
+
+        socket.on('typing-start', ({ to }) => {
+            if (!to || to === userId) return;
+            const recipientSockets = onlineUsers.get(to) || [];
+
+            recipientSockets.forEach(socketId => {
+                io.to(socketId).emit('user-start-typing', { from: userId });
+            });
+        });
+        socket.on('typing-stop', ({ to }) => {
+            if (!to || to === userId) return;
+            const recipientSockets = onlineUsers.get(to) || [];
+
+            recipientSockets.forEach(socketId => {
+                io.to(socketId).emit('user-stop-typing', { from: userId });
+            });
         });
 
         socket.on('disconnect', () => {

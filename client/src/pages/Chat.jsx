@@ -47,10 +47,14 @@ import { format } from "date-fns";
 import { useChat } from "../hooks/useChat";
 import MessageBubble from "../components/chat/MessageBubble";
 import { authHooks } from "../hooks/authHooks";
+import { chatApis } from "../api/chatApis";
+import TypingIndicator from "../components/chat/TypingIndicator";
 
 const Chat = () => {
   const navigate = useNavigate();
   const { id: recipientId } = useParams();
+
+  // const [scrollDirection, setScrollDirection] = useState("down");
 
   const {
     recipient,
@@ -58,6 +62,8 @@ const Chat = () => {
     messages,
     sendMessage,
     loading: messagesLoading,
+    sendTyping,
+    isTyping,
   } = useChat(recipientId);
   const { user } = authHooks.useGetUser();
 
@@ -73,6 +79,47 @@ const Chat = () => {
   const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // Scroll to bottom on new messages
+  // useEffect(() => {
+  //   if (scrollDirection === "down") {
+  //     scrollToBottom();
+  //   }
+  // }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const isNearBottom = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return true;
+
+    return (
+      container.scrollHeight - container.scrollTop - container.clientHeight < 80
+    );
+  };
+
+  useEffect(() => {
+    if (isNearBottom()) {
+      const timeout = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        });
+      }, 50);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   // Handle send message
   const handleSendMessage = () => {
@@ -277,13 +324,13 @@ const Chat = () => {
       <div className="  flex flex-col relative flex-1 overflow-hidden">
         <div
           ref={messagesContainerRef}
-          className="flex flex-col overflow-y-auto p-4 space-y-4 no-scrollbar "
+          className="flex flex-col overflow-y-auto p-4 space-y-4 no-scrollbar size-full"
         >
-          {messagesLoading ? (
+          {messagesLoading? (
             <div className="flex items-center justify-center size-full">
               <div className="w-8 h-8 border-3  border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : messages.length === 0 ? (
+          ) : messages.length === 0 && !isTyping? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <div className="w-20 h-20  rounded-full flex items-center justify-center mb-4">
                 <MessageCircle className="w-10 h-10 text-secondary-theme" />
@@ -292,7 +339,7 @@ const Chat = () => {
                 No messages yet
               </h3>
               <p className="text-secondary-theme text-sm max-w-xs">
-                Send a message to start chatting with {recipient?.name}!
+                Send a message to start chatting with {user?.name}!
               </p>
             </div>
           ) : (
@@ -321,6 +368,12 @@ const Chat = () => {
               </div>
             ))
           )}
+          {isTyping && (
+            // <div className="flex">
+              <TypingIndicator name={user?.name} />
+            // </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
         {/* Pinned Messages Sidebar */}
         <AnimatePresence>
@@ -475,11 +528,12 @@ const Chat = () => {
             value={inputMessage}
             onChange={(e) => {
               setInputMessage(e.target.value);
+              sendTyping?.();
             }}
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 Input rounded-xl resize-none w-full max-h-18 md:max-h-32 px-2 md:px-2 py-1"
+            className="flex-1 Input rounded-xl resize-none w-full max-h-18 md:max-h-32 px-2 md:px-2 py-2 no-scrollbar"
             style={{ minHeight: "34px" }}
           />
 

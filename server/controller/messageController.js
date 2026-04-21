@@ -38,3 +38,76 @@ export const getConversation = async (req, res) => {
     });
   }
 };
+
+export const getUnreadCount = async (req, res) => {
+  try {
+    const currentUserId = req.userId;
+
+    const unreadCount = await MessageModel.countDocuments({
+      to: currentUserId,
+      status: { $ne: 'read' }
+    });
+
+    const unreadPerUser = await MessageModel.aggregate([
+      {
+        $match: {
+          to: currentUserId,
+          status: { $ne: 'read' }
+        }
+      },
+      {
+        $group: {
+          _id: '$from',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    return res.json({
+      success: true,
+      total: unreadCount,
+      perUser: unreadPerUser
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to get unread count'
+    });
+  }
+};
+
+export const markMessagesAsRead = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.userId;
+
+    const readAt = new Date();
+
+    const result = await MessageModel.updateMany(
+      {
+        from: userId,
+        to: currentUserId,
+        status: { $in: ['sent', 'delivered'] }
+      },
+      {
+        $set: {
+          status: 'read',
+          readAt
+        }
+      }
+    );
+
+    return res.json({
+      success: true,
+      message: `Marked ${result.modifiedCount} messages as read`,
+      count: result.modifiedCount
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to mark messages as read'
+    });
+  }
+};
