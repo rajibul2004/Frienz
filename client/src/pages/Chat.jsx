@@ -64,6 +64,7 @@ const Chat = () => {
     loading: messagesLoading,
     sendTyping,
     isTyping,
+    retryMessage,
   } = useChat(recipientId);
   const { user } = authHooks.useGetUser();
 
@@ -125,7 +126,7 @@ const Chat = () => {
   const handleSendMessage = () => {
     if (!inputMessage.trim() || inputMessage.trim() === "") return;
 
-    sendMessage(inputMessage, recipientId);
+    sendMessage(inputMessage);
     setInputMessage("");
   };
 
@@ -339,7 +340,7 @@ const Chat = () => {
                 No messages yet
               </h3>
               <p className="text-secondary-theme text-sm max-w-xs">
-                Send a message to start chatting with {user?.name}!
+                Send a message to start chatting with {recipient?.name}!
               </p>
             </div>
           ) : (
@@ -361,6 +362,7 @@ const Chat = () => {
                       <MessageBubble
                         message={message}
                         isOwn={message.from._id === user?._id}
+                        onRetry={retryMessage}
                       />
                     </div>
                   ))}
@@ -370,7 +372,7 @@ const Chat = () => {
           )}
           {isTyping && (
             // <div className="flex">
-              <TypingIndicator name={user?.name} />
+              <TypingIndicator name={recipient?.name} />
             // </div>
           )}
           <div ref={messagesEndRef} />

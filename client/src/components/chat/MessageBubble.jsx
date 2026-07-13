@@ -13,10 +13,14 @@ import {
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 
-const MessageBubble = ({ message, isOwn }) => {
+const MessageBubble = ({ message, isOwn, onRetry }) => {
   const [showActions, setShowActions] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
   const [reaction, setReaction] = useState(null);
+
+  const handleRetry = () => {
+    onRetry?.(message._id);
+  };
 
   const formatTime = (timestamp) => {
     if (!timestamp) return "";

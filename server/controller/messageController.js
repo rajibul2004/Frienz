@@ -23,6 +23,7 @@ export const getConversation = async (req, res) => {
       .limit(parseInt(limit))
       .populate('from', 'name profilePic')
       .populate('to', 'name profilePic')
+      .populate('replyTo', 'message type from')
       .lean();
 
     return res.json({

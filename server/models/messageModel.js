@@ -35,6 +35,44 @@ const messageSchema = new mongoose.Schema({
         enum: ['text', 'image', 'file'],
         default: 'text',
     },
+    replyTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Message',
+        default: null,
+    },
+    reactions: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        emoji: {
+            type: String,
+            required: true,
+        },
+    }],
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
+    deletedAt: {
+        type: Date,
+        default: null,
+    },
+    isPinned: {
+        type: Boolean,
+        default: false,
+        index: true,
+    },
+    pinnedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null,
+    },
+    pinnedAt: {
+        type: Date,
+        default: null,
+    },
 }, { timestamps: true });
 
 messageSchema.pre('validate', function () {

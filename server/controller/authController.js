@@ -424,6 +424,7 @@ const getUser = async (req, res) => {
         return res.status(200).json({
             success: true,
             user: {
+                _id: user._id,
                 name:user.name,
                 profilePic:user.profilePic,
                 bio:user.bio,

@@ -91,32 +91,46 @@ export const initializeSocket = (server, corsOptions) => {
             }
         })();
         // Private message
-        socket.on('send-message', async ({ to, message, type = 'text', replyTo = null, tempId, emojiReaction = null }) => {
+        socket.on('send-message', async ({ to, message, type = 'text', replyTo = null, tempId }) => {
             try {
                 const from = userId;
-                if (!to || (type === 'text' && (!message || message.trim() === ''))) {
+                if (!to || to === from) {
+                    return socket.emit('message-error', { error: 'Invalid recipient', tempId });
+                }
+                if (type === 'text' && (!message || message.trim() === '')) {
                     return socket.emit('message-error', { error: 'Invalid message', tempId });
                 }
                 const recipient = await UserModel.findById(to).select("_id name profilePic");
                 if (!recipient) {
-                    socket.emit('message-error', { error: 'Recipient not found' });
-                    return;
+                    return socket.emit('message-error', { error: 'Recipient not found', tempId });
                 }
+
+                let replyToId = null;
+                if (replyTo) {
+                    const repliedMessage = await MessageModel.findOne({
+                        _id: replyTo,
+                        $or: [{ from, to }, { from: to, to: from }],
+                    }).select('_id');
+                    if (repliedMessage) replyToId = repliedMessage._id;
+                }
+
                 const recipientSockets = onlineUsers.get(to);
                 const isRecipientOnline = recipientSockets && recipientSockets.size > 0;
 
                 const newMessage = new MessageModel({
                     from,
                     to,
-                    message: message.trim(),
+                    message: type === 'text' ? message.trim() : message,
                     status: isRecipientOnline ? 'delivered' : 'sent',
                     type,
+                    replyTo: replyToId,
                 });
                 await newMessage.save();
 
                 const populatedMessage = await MessageModel.findById(newMessage._id)
                     .populate('from', 'name profilePic')
                     .populate('to', 'name profilePic')
+                    .populate('replyTo', 'message type from')
                     .lean();
 
                 const messageData = {
@@ -126,6 +140,10 @@ export const initializeSocket = (server, corsOptions) => {
                     message: populatedMessage.message,
                     type: populatedMessage.type,
                     status: populatedMessage.status,
+                    replyTo: populatedMessage.replyTo,
+                    reactions: populatedMessage.reactions || [],
+                    isDeleted: populatedMessage.isDeleted,
+                    isPinned: populatedMessage.isPinned,
                     createdAt: populatedMessage.createdAt
                 };
                 socket.emit('message-sent', { ...messageData, tempId });
@@ -145,18 +163,122 @@ export const initializeSocket = (server, corsOptions) => {
             }
         });
 
+        // React to a message (toggle: same user + same emoji again removes it)
+        socket.on('react-message', async ({ messageId, emoji }) => {
+            try {
+                if (!messageId || !emoji) return;
+
+                const msg = await MessageModel.findOne({
+                    _id: messageId,
+                    $or: [{ from: userId }, { to: userId }],
+                });
+                if (!msg) return;
+
+                const existingIndex = msg.reactions.findIndex(
+                    r => r.user.toString() === userId && r.emoji === emoji
+                );
+
+                if (existingIndex !== -1) {
+                    msg.reactions.splice(existingIndex, 1);
+                } else {
+                    msg.reactions = msg.reactions.filter(r => r.user.toString() !== userId);
+                    msg.reactions.push({ user: userId, emoji });
+                }
+                await msg.save();
+
+                const otherUserId = msg.from.toString() === userId ? msg.to.toString() : msg.from.toString();
+                const payload = { messageId, reactions: msg.reactions };
+
+                socket.emit('message-reaction', payload);
+                const otherSockets = onlineUsers.get(otherUserId);
+                if (otherSockets) {
+                    otherSockets.forEach(socketId => io.to(socketId).emit('message-reaction', payload));
+                }
+            } catch (error) {
+                console.error('React message error:', error);
+            }
+        });
+
+        // Delete a message (soft delete, sender only)
+        socket.on('delete-message', async ({ messageId }) => {
+            try {
+                if (!messageId) return;
+
+                const msg = await MessageModel.findOne({ _id: messageId, from: userId });
+                if (!msg) {
+                    return socket.emit('message-error', { error: 'Message not found or not authorized' });
+                }
+
+                msg.isDeleted = true;
+                msg.message = '';
+                msg.isPinned = false;
+                msg.pinnedBy = null;
+                msg.pinnedAt = null;
+                await msg.save();
+
+                const payload = { messageId };
+                socket.emit('message-deleted', payload);
+                const otherUserId = msg.to.toString();
+                const otherSockets = onlineUsers.get(otherUserId);
+                if (otherSockets) {
+                    otherSockets.forEach(socketId => io.to(socketId).emit('message-deleted', payload));
+                }
+            } catch (error) {
+                console.error('Delete message error:', error);
+            }
+        });
+
+        // Pin / unpin a message (either participant can pin)
+        socket.on('pin-message', async ({ messageId, pinned }) => {
+            try {
+                if (!messageId) return;
+
+                const msg = await MessageModel.findOne({
+                    _id: messageId,
+                    $or: [{ from: userId }, { to: userId }],
+                    isDeleted: false,
+                });
+                if (!msg) return;
+
+                msg.isPinned = !!pinned;
+                msg.pinnedBy = msg.isPinned ? userId : null;
+                msg.pinnedAt = msg.isPinned ? new Date() : null;
+                await msg.save();
+
+                const payload = {
+                    messageId,
+                    isPinned: msg.isPinned,
+                    pinnedBy: msg.pinnedBy,
+                    pinnedAt: msg.pinnedAt,
+                };
+
+                socket.emit('message-pin-updated', payload);
+                const otherUserId = msg.from.toString() === userId ? msg.to.toString() : msg.from.toString();
+                const otherSockets = onlineUsers.get(otherUserId);
+                if (otherSockets) {
+                    otherSockets.forEach(socketId => io.to(socketId).emit('message-pin-updated', payload));
+                }
+            } catch (error) {
+                console.error('Pin message error:', error);
+            }
+        });
+
         // Mark messages as delivered
         socket.on('mark-delivered', async ({ messageIds }) => {
             try {
-                if (!messageIds.length) return;
+                if (!messageIds?.length) return;
+
+                const deliveredAt = new Date();
+
                 await MessageModel.updateMany(
                     {
                         _id: { $in: messageIds },
                         to: userId,
                         status: 'sent'
                     },
-                    { status: 'delivered', deliveredAt: new Date() }
+                    { status: 'delivered', deliveredAt }
                 );
+
                 // Notify senders about delivery
                 const messages = await MessageModel.find({ _id: { $in: messageIds } }).select('from');
                 const senderUpdates = {};
@@ -166,7 +288,7 @@ export const initializeSocket = (server, corsOptions) => {
                     senderUpdates[senderId].push(msg._id);
                 });
                 Object.entries(senderUpdates).forEach(([senderId, ids]) => {
-                    const senderSocketId = onlineUsers.get(senderId);
+                    const senderSockets = onlineUsers.get(senderId);
                     if (senderSockets) {
                         senderSockets.forEach(socketId => {
                             io.to(socketId).emit('messages-delivered', {

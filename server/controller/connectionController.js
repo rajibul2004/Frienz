@@ -86,7 +86,7 @@ const sendFriendRequest = async (req, res) => {
             });
         }
 
-        if (currentUser._id === recipientId) {
+        if (currentUser._id.toString() === recipientId) {
             return res.status(400).json({
                 success: false,
                 message: "You can't send friend request to yourself"
@@ -101,7 +101,7 @@ const sendFriendRequest = async (req, res) => {
             });
         }
 
-        if (currentUser?.friends?.includes(recipientId)) {
+        if (currentUser?.friends?.some(f => f.toString() === recipientId)) {
             return res.status(400).json({
                 success: false,
                 message: "You are already friends with this user"

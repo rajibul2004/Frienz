@@ -21,7 +21,7 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || 'localhost';
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const CLIENT_URL = [process.env.CLIENT_URL ,'http://localhost:5173'];
+const CLIENT_URL = [process.env.CLIENT_URL, 'http://localhost:5174', 'http://localhost:5173'].filter(Boolean);
 const corsOptions = {
   origin: CLIENT_URL,
   credentials: true,
@@ -37,9 +37,7 @@ connectDB();
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
-if(NODE_ENV === 'development') {
-  app.use(cors(corsOptions));
-}
+app.use(cors(corsOptions));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/connections', connectionRoutes);

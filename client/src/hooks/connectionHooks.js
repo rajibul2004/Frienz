@@ -56,7 +56,7 @@ export const connectionHooks = {
         });
         return { 
             isLoading,
-            outgoingRequests: data?.outGoingReq || [], // Fixed field name
+            outgoingRequests: data?.data?.requests || [],
             error 
         };
     },

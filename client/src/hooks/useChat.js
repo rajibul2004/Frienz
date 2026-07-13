@@ -105,6 +105,17 @@ export const useChat = (recipientId) => {
         }
     }, [replaceTempMessage]);
 
+    const handleMessageError = useCallback(({ tempId }) => {
+        if (!tempId) return;
+        setMessages((prev) =>
+            prev.map((msg) =>
+                msg._id === tempId
+                    ? { ...msg, pending: false, failed: true }
+                    : msg
+            )
+        );
+    }, []);
+
     const handleDelivered = useCallback(({ messageIds, deliveredAt }) => {
         setMessages(prev =>
             prev.map(msg =>
@@ -159,6 +170,7 @@ export const useChat = (recipientId) => {
                 setIsTyping(false);
             }
         });
+        const cleanup7 = on('message-error', handleMessageError);
         return () => {
             cleanup1?.();
             cleanup2?.();
@@ -166,11 +178,12 @@ export const useChat = (recipientId) => {
             cleanup4?.();
             cleanup5?.();
             cleanup6?.();
+            cleanup7?.();
         }
-    }, [socket, on, recipientId, loadHistory, handleNewMessage, handleMessageSent, handleDelivered, handleMessageRead]);
+    }, [socket, on, recipientId, loadHistory, handleNewMessage, handleMessageSent, handleDelivered, handleMessageRead, handleMessageError]);
 
     const sendMessage = useCallback((text) => {
-        if (!text.trim() || !recipientId || !isConnected) return;
+        if (!text.trim() || !recipientId) return;
 
         const tempId = crypto.randomUUID();
 
@@ -185,9 +198,12 @@ export const useChat = (recipientId) => {
             message: text.trim(),
             type: "text",
             createdAt: new Date().toISOString(),
-            pending: true,
+            pending: !isConnected ? false : true,
+            failed: !isConnected,
         };
         setMessages(prev => [...prev, messageData]);
+
+        if (!isConnected) return;
 
         emit('send-message', {
             to: recipientId,

@@ -25,9 +25,9 @@ const extractUserId = async (req, res, next) => {
         next();
 
     } catch (err) {
-        res.json({
+        return res.status(401).json({
             success: false,
-            message: err.message
+            message: "Invalid or expired token. Please login again."
         });
     }
 };
