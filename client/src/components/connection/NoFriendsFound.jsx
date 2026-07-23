@@ -1,53 +1,46 @@
-import React from 'react'
-import { Users, UserPlus, Globe } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
+import { Users, UserPlus, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const NoFriendsFound = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="col-span-full bg-white/5 milky:bg-gray-400/5 backdrop-blur-sm border border-white/10 milky:border-gray-900/10 rounded-2xl p-8 text-center group hover:bg-white/10 milky:hover:bg-gray-400/10 hover:border-indigo-500/30 transition-all duration-300 relative overflow-hidden">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-linear-to-r from-indigo-500/5 milky:from-gray-300/5 to-purple-500/5 milky:to-slate-300/5 animate-pulse"></div>
-      
-      {/* Icon with glow effect */}
-      <div className="relative mb-6">
-        <div className="absolute inset-0 bg-linear-to-r from-indigo-500 milky:from-gray-300 to-purple-500 milky:to-slate-300 rounded-full opacity-20 blur-xl group-hover:opacity-30 transition-opacity animate-pulse"></div>
-        <div className="relative w-24 h-24 mx-auto active rounded-full flex items-center justify-center animate-bounce">
-          <Users className="w-12 h-12" />
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="relative col-span-full flex flex-col items-center justify-center py-16 px-8 rounded-3xl overflow-hidden border border-white/10 milky:border-gray-200 bg-white/[0.03] milky:bg-white/60 backdrop-blur-xl text-center"
+    >
+      {/* Soft ambient glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full blur-3xl opacity-20 active" />
+      </div>
+
+      {/* Icon cluster */}
+      <div className="relative mb-6 flex items-center justify-center">
+        <div className="w-20 h-20 rounded-full active shadow-xl flex items-center justify-center">
+          <Users className="w-9 h-9 text-white" />
+        </div>
+        <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-indigo-500/80 forest:bg-emerald-500/80 synthwave:bg-pink-500/80 aqua:bg-cyan-500/80 luxury:bg-amber-500/80 flex items-center justify-center shadow-md">
+          <Sparkles className="w-3.5 h-3.5 text-white" />
         </div>
       </div>
 
-      {/* Text Content */}
-      <h3 className="text-xl font-bold mb-3">
-        No Friends Yet
-      </h3>
-      
-      <p className="text-white/60 milky:text-gray-900/60 mb-6 max-w-md mx-auto">
-        Connect with people below to interact with the world! 🌍
+      <h3 className="text-xl font-bold mb-2">No friends yet</h3>
+      <p className="text-sm text-white/50 milky:text-gray-500 max-w-xs mb-8 leading-relaxed">
+        Discover people below and start connecting — your first friendship is just one click away 🌍
       </p>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-        <button 
-          onClick={() => window.navigateTo?.('/friends')}
-          className="group/btn px-6 py-2.5 btn-primary-theme  font-medium text-sm hover:scale-105 transition-all duration-300 flex items-center gap-2"
-        >
-          <UserPlus className="w-4 h-4 group-hover/btn:rotate-12 transition-transform" />
-          Find Friends
-        </button>
-        
-        <button 
-          onClick={() => window.navigateTo?.('/')}
-          className="group/btn px-6 py-2.5 bg-white/5 milky:bg-gray-900/5 hover:bg-white/10 milky:hover:bg-gray-900/10 text-white/80 milky:text-gray-900/80 hover:text-white milky:hover:text-gray-900 rounded-xl font-medium text-sm transition-all duration-300 flex items-center gap-2 border border-white/10 milky:border-gray-900/10 hover:border-indigo-500/30"
-        >
-          <Globe className="w-4 h-4 group-hover/btn:rotate-12 transition-transform" />
-          Explore Community
-        </button>
-      </div>
+      <button
+        onClick={() => navigate('/notification')}
+        className="btn-primary-theme px-6 py-2.5 text-sm font-semibold rounded-xl hover:scale-105 hover:shadow-xl transition-all duration-300 gap-2"
+      >
+        <UserPlus className="w-4 h-4" />
+        Find Friends
+      </button>
+    </motion.div>
+  );
+};
 
-      {/* Decorative floating elements */}
-      <div className="absolute top-10 left-10 w-2 h-2 bg-indigo-500 rounded-full animate-ping"></div>
-      <div className="absolute bottom-10 right-10 w-3 h-3 bg-purple-500 rounded-full animate-ping delay-300"></div>
-    </div>
-  )
-}
-
-export default NoFriendsFound
+export default NoFriendsFound;

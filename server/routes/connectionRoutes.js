@@ -1,5 +1,6 @@
 import express from 'express';
-import { getRecommendedUsers, sendFriendRequest, getFriendRequest, acceptFriendRequest, getFriends, getOutGoingReq, removeFriend } from '../controller/connectionController.js';
+import { getRecommendedUsers, sendFriendRequest, getFriendRequest, acceptFriendRequest, rejectFriendRequest, getFriends, getOutGoingReq, removeFriend } from '../controller/connectionController.js';
+
 
 import extractUserId from '../middleware/extractUserId.js';
 import attachUser from '../middleware/attachUser.js';
@@ -13,6 +14,8 @@ router.get('/friends', getFriends);
 
 router.post('/send-request/:id', sendFriendRequest);
 router.put('/accept-request/:id/', acceptFriendRequest);
+router.delete('/reject-request/:id', rejectFriendRequest);
+
 
 router.get('/incoming-friend-requests', getFriendRequest);
 router.get('/outgoing-friend-requests', getOutGoingReq);

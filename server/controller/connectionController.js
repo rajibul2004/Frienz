@@ -1,5 +1,6 @@
 import UserModel from "../models/userModel.js";
 import ConnectionModel from "../models/connectionModel.js";
+import { getIO, getOnlineUsers } from "../socket/socket.js";
 
 const getRecommendedUsers = async (req, res) => {
     try {
@@ -133,6 +134,30 @@ const sendFriendRequest = async (req, res) => {
             status: 'pending'
         });
 
+        // Emit real-time socket event to recipient
+        try {
+            const io = getIO();
+            const recipientSockets = getOnlineUsers().get(recipientId);
+            if (recipientSockets && recipientSockets.size > 0) {
+                const payload = {
+                    type: 'friend_request',
+                    requestId: friendRequest._id,
+                    sender: {
+                        _id: currentUser._id,
+                        name: currentUser.name,
+                        profilePic: currentUser.profilePic,
+                        location: currentUser.location
+                    },
+                    createdAt: new Date().toISOString()
+                };
+                recipientSockets.forEach(socketId => {
+                    io.to(socketId).emit('friend-request-received', payload);
+                });
+            }
+        } catch (socketErr) {
+            console.error('Socket emission error (sendFriendRequest):', socketErr);
+        }
+
         return res.status(201).json({
             success: true,
             message: "Friend request sent successfully",
@@ -204,6 +229,30 @@ const acceptFriendRequest = async (req, res) => {
         friendRequest.status = "accepted";
         await friendRequest.save();
 
+        // Emit real-time socket event to original sender
+        try {
+            const io = getIO();
+            const senderId = friendRequest.sender.toString();
+            const senderSockets = getOnlineUsers().get(senderId);
+            if (senderSockets && senderSockets.size > 0) {
+                const payload = {
+                    type: 'friend_accepted',
+                    requestId: requestId,
+                    acceptedBy: {
+                        _id: currentUser._id,
+                        name: currentUser.name,
+                        profilePic: currentUser.profilePic
+                    },
+                    createdAt: new Date().toISOString()
+                };
+                senderSockets.forEach(socketId => {
+                    io.to(socketId).emit('friend-request-accepted', payload);
+                });
+            }
+        } catch (socketErr) {
+            console.error('Socket emission error (acceptFriendRequest):', socketErr);
+        }
+
         return res.status(200).json({
             success: true,
             message: "Friend request accepted successfully",
@@ -217,6 +266,41 @@ const acceptFriendRequest = async (req, res) => {
             success: false,
             message: err.message
         });
+    }
+};
+
+const rejectFriendRequest = async (req, res) => {
+    try {
+        const { id: requestId } = req.params;
+        const currentUser = req.user;
+
+        if (!currentUser) {
+            return res.status(401).json({ success: false, message: "User not found" });
+        }
+        if (!requestId) {
+            return res.status(400).json({ success: false, message: "Request ID is required" });
+        }
+
+        const friendRequest = await ConnectionModel.findById(requestId);
+
+        if (!friendRequest) {
+            return res.status(404).json({ success: false, message: "Friend request not found" });
+        }
+        if (friendRequest.status !== "pending") {
+            return res.status(400).json({ success: false, message: `Request has already been ${friendRequest.status}` });
+        }
+        if (friendRequest.recipient.toString() !== currentUser._id.toString()) {
+            return res.status(403).json({ success: false, message: "Not authorised to reject this request" });
+        }
+
+        await ConnectionModel.findByIdAndDelete(requestId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Friend request rejected"
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -353,7 +437,8 @@ export {
     getFriends,
     sendFriendRequest,
     acceptFriendRequest,
+    rejectFriendRequest,
     getFriendRequest,
     getOutGoingReq,
     removeFriend,
-};
+};

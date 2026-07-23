@@ -99,6 +99,16 @@
     scrollbar-width: none; /* Firefox */
   }
 
+  /* Fade-in page transition used by Layout */
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
   /* .own{
     @apply bg-gradient-to-r from-indigo-500 to-purple-500  shadow-indigo-500/25;
   }

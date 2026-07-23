@@ -1,161 +1,122 @@
-import{useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  BellIcon,
   HomeIcon,
   Users,
+  BellIcon,
   LogOutIcon,
-  ChevronLeft,
-  ChevronRight,
+  MessageSquare,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 import { authHooks } from "../hooks/authHooks";
+
+const NAV_ITEMS = [
+  { path: "/",             icon: HomeIcon,       label: "Home" },
+  { path: "/friends",      icon: Users,          label: "Friends" },
+  { path: "/notification", icon: BellIcon,       label: "Notifications" },
+];
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = authHooks.useGetUser();
   const { isPending, logoutMutation } = authHooks.useLogout();
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  const currentPath = window.location.pathname;
-
-  const handleNavigation = (path) => {
-    navigate(path);
-    if(!isCollapsed){
-      setIsCollapsed(true);
-    }
-  };
 
   const handleLogout = async () => {
     try {
       await logoutMutation();
       navigate("/login");
-    } catch (error) {
-      toast.error(error.message);
+    } catch (err) {
+      toast.error(err.message);
     }
   };
 
-  const navItems = [
-    { path: "/", icon: HomeIcon, label: "Home" },
-    { path: "/friends", icon: Users, label: "Friends" },
-    { path: "/notification", icon: BellIcon, label: "Notifications" },
-  ];
-
   return (
-    <aside
-      className={`
-            backdrop-blur-md border-r border-white/10 milky:border-gray-900/10
-            h-[calc(100vh-4rem)] absolute top-16 left-0 z-20 transition-all duration-300
-            ${isCollapsed ? "w-20" : "w-64"}
-        `}
-    >
-      {/* Collapse Toggle Button */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-2 btn-primary-theme p-1.5 rounded-full shadow-lg hover:scale-110 transition-transform z-10"
-      >
-        {isCollapsed ? (
-          <ChevronRight className="w-4 h-4" />
-        ) : (
-          <ChevronLeft className="w-4 h-4" />
-        )}
-      </button>
+    <aside className="group/sidebar fixed top-16 left-0 h-[calc(100vh-4rem)] z-20 flex flex-col
+      w-[4.5rem] hover:w-56 transition-all duration-300 ease-in-out overflow-hidden
+      backdrop-blur-xl bg-white/[0.04] milky:bg-white/70
+      border-r border-white/[0.08] milky:border-gray-200/80
+      shadow-xl shadow-black/5">
 
-      {/* Navigation and Profile Container */}
-      <div className="flex flex-col h-full justify-between py-6 ">
-        {/* Navigation Links */}
-        <nav className="space-y-2 px-3 py-5">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentPath === item.path;
-
-            return (
-              <button
-                key={item.path}
-                onClick={() => handleNavigation(item.path)}
-                className={`
-                                    w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
-                                    transition-all duration-300 group relative
-                                    ${
-                                      isActive
-                                        ? "active shadow-lg cursor-not-allowed"
-                                        : "hover:bg-white/10 text-white/60 milky:text-gray-900/60 hover:text-white milky:hover:text-gray-900 cursor-pointer"
-                                    }
-                                `}
-              >
-                <Icon
-                  className={`w-5 h-5 transition-transform group-hover:scale-110}`}
-                />
-
-                {!isCollapsed && (
-                  <span className="text-sm font-medium">{item.label}</span>
-                )}
-
-                {/* Active Indicator */}
-                {isActive && !isCollapsed && (
-                  <div className="absolute right-2 w-1.5 h-1.5 bg-white rounded-full"></div>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Profile Section */}
-        <div className="px-3 mt-auto">
-          {/* User Profile Button */}
-          <button
-            onClick={() => handleNavigation("/profile")}
-            className={`
-                            w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
-                            transition-all duration-300 hover:bg-white/10 group cursor-pointer
-                            ${currentPath === "/profile" ? "bg-white/10" : ""}
-                        `}
-          >
-            <div className="relative">
-              <div className="w-8 h-8 rounded-full active p-0.5">
-                <div className="w-full h-full rounded-full bg-base-200 overflow-hidden">
-                  <img
-                    src={user?.profilePic || "/default-avatar.png"}
-                    alt={user?.name || "Profile"}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/150";
-                    }}
-                  />
-                </div>
-              </div>
-              {/* Online Indicator */}
-              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white/10 animate-pulse"></div>
-            </div>
-
-            {!isCollapsed && (
-              <div className="flex-1 text-left">
-                <p className="text-sm font-medium truncate max-w-30">
-                  {user?.name || "User"}
-                </p>
-                <p className="text-xs text-green-400 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                  Online
-                </p>
-              </div>
-            )}
-          </button>
-
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            disabled={isPending}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mt-2
-                                 hover:bg-red-500/10 text-red-400 hover:text-red-300
-                                 transition-all duration-300 group cursor-pointer disabled:cursor-not-allowed disabled:text-red-400/60 disabled:hover:bg-transparent"
-          >
-            <LogOutIcon className="w-5 h-5 transition-transform group-hover:scale-110" />
-            {!isCollapsed && (
-              <span className="text-sm font-medium">
-                {isPending ? "Logging out..." : "Logout"}
+      {/* Nav items */}
+      <nav className="flex-1 flex flex-col gap-1 px-2 pt-5">
+        {NAV_ITEMS.map(({ path, icon: Icon, label }) => {
+          const isActive = location.pathname === path;
+          return (
+            <button
+              key={path}
+              onClick={() => navigate(path)}
+              className={`relative flex items-center gap-3.5 px-3 py-2.5 rounded-xl w-full
+                transition-all duration-200 group/item cursor-pointer text-left
+                ${isActive
+                  ? "active shadow-lg text-white"
+                  : "text-white/55 milky:text-gray-500 hover:bg-white/10 milky:hover:bg-gray-100 hover:text-white milky:hover:text-gray-800"
+                }`}
+            >
+              <Icon className="w-[18px] h-[18px] shrink-0 transition-transform group-hover/item:scale-110" />
+              <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-200 overflow-hidden">
+                {label}
               </span>
-            )}
-          </button>
-        </div>
+              {/* Active pill indicator */}
+              {isActive && (
+                <motion.span
+                  layoutId="sidebarActivePill"
+                  className="absolute right-2 w-1 h-4 rounded-full bg-white/60"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Bottom section: avatar + logout */}
+      <div className="px-2 pb-5 flex flex-col gap-1">
+        {/* Profile */}
+        <button
+          onClick={() => navigate("/profile")}
+          className={`flex items-center gap-3.5 px-3 py-2.5 rounded-xl w-full
+            transition-all duration-200 cursor-pointer text-left
+            ${location.pathname === "/profile"
+              ? "bg-white/10 milky:bg-gray-100"
+              : "hover:bg-white/10 milky:hover:bg-gray-100"
+            }`}
+        >
+          <div className="relative flex-shrink-0">
+            <div className="w-7 h-7 rounded-full active p-[1.5px]">
+              <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
+                <img
+                  src={user?.profilePic || "/default-avatar.png"}
+                  alt={user?.name || "Profile"}
+                  className="w-full h-full object-cover"
+                  onError={(e) => (e.target.src = "https://via.placeholder.com/150")}
+                />
+              </div>
+            </div>
+            {/* Online dot */}
+            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-gray-900/50 shadow-sm" />
+          </div>
+          <div className="overflow-hidden opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-200">
+            <p className="text-sm font-semibold text-white milky:text-gray-800 truncate max-w-[120px]">
+              {user?.name || "My Profile"}
+            </p>
+            <p className="text-[10px] text-emerald-400 font-medium">● Online</p>
+          </div>
+        </button>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          disabled={isPending}
+          className="flex items-center gap-3.5 px-3 py-2.5 rounded-xl w-full
+            text-red-400 hover:bg-red-500/10 hover:text-red-300
+            transition-all duration-200 cursor-pointer disabled:opacity-50"
+        >
+          <LogOutIcon className="w-[18px] h-[18px] shrink-0" />
+          <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-200">
+            {isPending ? "Logging out…" : "Logout"}
+          </span>
+        </button>
       </div>
     </aside>
   );

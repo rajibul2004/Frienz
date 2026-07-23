@@ -6,8 +6,13 @@ export const authHooks = {
         const queryClient = useQueryClient();
         const { mutateAsync, isPending, error } = useMutation({
             mutationFn: authApis.login,
-            onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["user"] }); // Changed from authState
+            onSuccess: (data) => {
+                // Immediately populate the cache so PrivateRoute never sees a missing user
+                if (data?.user) {
+                    queryClient.setQueryData(["user"], data.user);
+                } else {
+                    queryClient.invalidateQueries({ queryKey: ["user"] });
+                }
             }
         });
         return { error, isLoginPending: isPending, loginMutation: mutateAsync };
@@ -17,8 +22,13 @@ export const authHooks = {
         const queryClient = useQueryClient();
         const { mutateAsync, isPending, error } = useMutation({
             mutationFn: authApis.register,
-            onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["user"] }); // Changed from authState
+            onSuccess: (data) => {
+                // Immediately populate the cache so PrivateRoute never sees a missing user
+                if (data?.user) {
+                    queryClient.setQueryData(["user"], data.user);
+                } else {
+                    queryClient.invalidateQueries({ queryKey: ["user"] });
+                }
             }
         });
         return { error, isRegisterPending: isPending, registerMutation: mutateAsync };
@@ -80,10 +90,13 @@ export const authHooks = {
     },
 
     useGetOnboardStatus: () => {
+        // Share the same ["user"] cache as useGetUser to avoid a duplicate fetch
+        // and the race condition it causes in PrivateRoute
         const { data, isLoading, refetch } = useQuery({
-            queryKey: ["user", "onboarding"], // More specific key
+            queryKey: ["user"],
             queryFn: authApis.getUser,
             retry: false,
+            staleTime: 5 * 60 * 1000,
             select: (userData) => userData?.isBoarded // Transform data
         });
         return { isLoading, isBoarded: data, refetch };

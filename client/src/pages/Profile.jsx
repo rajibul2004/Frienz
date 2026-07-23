@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Camera,
   Edit3,
-  Home,
   MapPin,
   Save,
   X,
@@ -11,32 +10,52 @@ import {
   FileText,
   Languages,
   Loader2,
-  Check,
+  Mail,
+  Globe,
+  Sparkles,
+  CheckCircle2,
 } from "lucide-react";
 import { authHooks } from "../hooks/authHooks";
 import toast from "react-hot-toast";
 import { APP_CONSTANTS } from "../constant/constant.js";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 const { LANGUAGES } = APP_CONSTANTS;
 
+/* ── small helper ── */
+const Field = ({ icon: Icon, label, children }) => (
+  <div className="space-y-1.5">
+    <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-white/40 milky:text-gray-400">
+      <Icon className="w-3.5 h-3.5" />
+      {label}
+    </label>
+    {children}
+  </div>
+);
+
+const DisplayValue = ({ value, placeholder, multiline }) =>
+  multiline ? (
+    <p className="text-sm text-white/80 milky:text-gray-700 leading-relaxed min-h-[3rem]">
+      {value || <span className="text-white/30 milky:text-gray-400 italic">{placeholder}</span>}
+    </p>
+  ) : (
+    <p className="text-sm font-medium text-white/90 milky:text-gray-800">
+      {value || <span className="text-white/30 milky:text-gray-400 italic">{placeholder}</span>}
+    </p>
+  );
+
 const Profile = () => {
-  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    bio: "",
-    nativeLang: "",
-    location: "",
-    profilePic: "",
-  });
   const [avatarHover, setAvatarHover] = useState(false);
 
+  const [formData, setFormData] = useState({
+    name: "", bio: "", nativeLang: "", location: "", profilePic: "",
+  });
+
   const { user, isLoading: userLoading } = authHooks.useGetUser();
-  const { onboardingMutation, isPending } = authHooks.useCompleteOnboarding();
+  const { onboardingMutation } = authHooks.useCompleteOnboarding();
+
   useEffect(() => {
     if (user) {
       setFormData({
@@ -49,39 +68,28 @@ const Profile = () => {
     }
   }, [user]);
 
-  // Check for changes
   useEffect(() => {
     if (!user) return;
-    const hasUnsavedChanges =
-      formData.name !== user?.name ||
-      formData.bio !== user?.bio ||
-      formData.nativeLang !== user?.nativeLang ||
-      formData.location !== user?.location ||
-      formData.profilePic !== user?.profilePic;
-    setHasChanges(hasUnsavedChanges);
+    setHasChanges(
+      formData.name !== user.name ||
+      formData.bio !== (user.bio || "") ||
+      formData.nativeLang !== (user.nativeLang || "") ||
+      formData.location !== (user.location || "") ||
+      formData.profilePic !== (user.profilePic || "")
+    );
   }, [formData, user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!hasChanges) {
-      toast.success("No changes to save");
-      setIsEditing(false);
-      return;
-    }
-
+    if (!hasChanges) { toast("No changes to save"); setIsEditing(false); return; }
     setIsSaving(true);
-
     try {
-      await onboardingMutation({
-        formData,
-      });
-
-      toast.success("Profile updated successfully! ✨");
+      await onboardingMutation({ formData });
+      toast.success("Profile updated ✨");
       setIsEditing(false);
       setHasChanges(false);
-    } catch (error) {
-      toast.error(error.message || "Failed to update profile");
+    } catch (err) {
+      toast.error(err.message || "Failed to update profile");
     } finally {
       setIsSaving(false);
     }
@@ -89,308 +97,289 @@ const Profile = () => {
 
   const handleCancel = () => {
     setFormData({
-      name: user?.name || "",
-      bio: user?.bio || "",
-      nativeLang: user?.nativeLang || "",
-      location: user?.location || "",
+      name: user?.name || "", bio: user?.bio || "",
+      nativeLang: user?.nativeLang || "", location: user?.location || "",
       profilePic: user?.profilePic || "",
     });
     setIsEditing(false);
     setHasChanges(false);
-    toast.success("Changes discarded");
   };
 
-  const handleRandomAvatar = async () => {
+  const handleRandomAvatar = () => {
     const idx = Math.floor(Math.random() * 35) + 1;
-    const randomavatar = `https://cdn.jsdelivr.net/gh/alohe/memojis/png/memo_${idx}.png`;
-    setFormData((prev) => ({ ...prev, profilePic: randomavatar }));
+    setFormData((p) => ({ ...p, profilePic: `https://cdn.jsdelivr.net/gh/alohe/memojis/png/memo_${idx}.png` }));
   };
 
+  if (userLoading) {
+    return (
+      <div className="flex items-center justify-center h-full py-32">
+        <Loader2 className="w-8 h-8 animate-spin text-white/40 milky:text-gray-400" />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-transparent flex items-center justify-center">
+    <div className="flex justify-center py-4 px-2">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.4 }}
         className="w-full max-w-2xl"
       >
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
-          {/* Header */}
-          <div className="relative p-6 sm:p-8  border-b border-white/10">
-            <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              className="text-center"
-            >
-              <h1 className="text-2xl sm:text-3xl font-bold  mb-2">
-                Your Profile
-              </h1>
-              <p className="text-white/60 milky:text-gray-900/60 text-sm">
-                {isEditing
-                  ? "Edit your profile information"
-                  : "View your profile details"}
-              </p>
-            </motion.div>
+        <form onSubmit={handleSubmit}>
+          {/* ── Card ── */}
+          <div className="rounded-3xl overflow-hidden border border-white/10 milky:border-gray-200 bg-white/[0.04] milky:bg-white/80 backdrop-blur-2xl shadow-2xl shadow-black/20">
 
+            {/* ── Hero banner + avatar ── */}
+            <div className="relative h-36 bg-gradient-to-br from-indigo-500/30 via-purple-500/20 to-pink-500/30 milky:from-indigo-200/70 milky:via-purple-100/60 milky:to-pink-200/70 forest:from-emerald-500/30 forest:to-teal-400/30 synthwave:from-pink-500/30 synthwave:to-purple-600/30 midnight:from-slate-600/40 midnight:to-gray-700/40 aqua:from-cyan-500/30 aqua:to-blue-500/30 luxury:from-amber-500/25 luxury:to-yellow-400/25">
+              {/* Decorative orbs */}
+              <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
+              <div className="absolute -bottom-6 left-10 w-28 h-28 rounded-full bg-white/5 blur-xl" />
 
-          </div>
-
-          <div className="p-6 sm:p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Profile Picture Section */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center space-y-4"
-              >
-                <div
-                  className="relative group"
-                  onMouseEnter={() => setAvatarHover(true)}
-                  onMouseLeave={() => setAvatarHover(false)}
-                >
-                  {/* Avatar container */}
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full active p-1">
-                    <div className="w-full h-full rounded-full overflow-hidden">
-                      {formData.profilePic ? (
-                        <img
-                          src={formData.profilePic}
-                          alt="Profile"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-white/5 milky:bg-gray-900/5">
-                          <Camera className="w-10 h-10 text-white/40 milky:text-gray-900/40" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Hover overlay for editing mode */}
-                  {isEditing && (
-                    <AnimatePresence>
-                      {avatarHover && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="absolute inset-0 flex items-center justify-center cursor-pointer"
-                          onClick={handleRandomAvatar}
-                        >
-                          <div className="absolute inset-0 bg-black/50 milky:bg-white/50 rounded-full" />
-                          <Shuffle className="w-8 h-8 relative z-10" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  )}
-                </div>
-
-                {/* Random Avatar Button - only in edit mode */}
-                {isEditing && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    onClick={handleRandomAvatar}
-                    className="group px-4 py-2 cursor-pointer bg-white/5 milky:bg-gray-900/5 hover:bg-white/10 milky:hover:bg-gray-900/10 border border-white/10 milky:border-gray-900/10 rounded-xl text-white/80 milky:text-gray-900/80 hover:text-white hover:milky:text-gray-900 transition-all duration-300 flex items-center gap-2 text-sm"
-                  >
-                    <Shuffle className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
-                    Generate Random Avatar
-                  </motion.button>
-                )}
-              </motion.div>
-
-              {/* Form Fields */}
-              <div className="space-y-4">
-                {/* Full Name */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/80 milky:text-gray-900/80 flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Full Name
-                  </label>
-                  {!isEditing ? (
-                    <div className="px-4 py-3 Input rounded-xl ">
-                      {user?.name || "Not set"}
-                    </div>
-                  ) : (
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      placeholder="Enter your full name"
-                      className="w-full px-4 py-3 rounded-xl Input transition-colors"
-                    />
-                  )}
-                </div>
-
-                {/* Bio */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/80 milky:text-gray-900/80 flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    Bio
-                  </label>
-                  {!isEditing ? (
-                    <div className="px-4 py-3 Input rounded-xl min-h-20">
-                      {user?.bio || "No bio yet"}
-                    </div>
-                  ) : (
-                    <textarea
-                      value={formData.bio}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          bio: e.target.value,
-                        }))
-                      }
-                      placeholder="Tell others about yourself..."
-                      rows="3"
-                      className="w-full px-4 py-3 rounded-xl Input transition-colors resize-none"
-                    />
-                  )}
-                </div>
-
-                {/* Native Language */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/80 milky:text-gray-900/80 flex items-center gap-2">
-                    <Languages className="w-4 h-4" />
-                    Native Language
-                  </label>
-                  {!isEditing ? (
-                    <div className="px-4 py-3 Input rounded-xl capitalize">
-                      {user?.nativeLang || "Not set"}
-                    </div>
-                  ) : (
-                    <select
-                      value={formData.nativeLang}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          nativeLang: e.target.value,
-                        }))
-                      }
-                      className="w-full px-4 py-3 Input rounded-xl transition-colors"
+              {/* Edit / View badge */}
+              <div className="absolute top-4 right-4">
+                <AnimatePresence mode="wait">
+                  {isEditing ? (
+                    <motion.div
+                      key="editing"
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.85 }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/30 milky:bg-white/70 backdrop-blur-md text-xs font-semibold text-white milky:text-gray-700 border border-white/20"
                     >
-                      <option value="" className="bg-gray-800 milky:bg-gray-300">
-                        Select your language
-                      </option>
-                      {LANGUAGES.map((lang) => (
-                        <option
-                          key={`native-${lang}`}
-                          value={lang.toLowerCase()}
-                          className="bg-gray-700 milky:bg-gray-200 capitalize"
-                        >
-                          {lang}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-
-                {/* Location */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/80 milky:text-gray-900/80 flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    Location
-                  </label>
-                  {!isEditing ? (
-                    <div className="px-4 py-3 Input rounded-xl  flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-white/40 milky:text-gray-900/40" />
-                      {user?.location || "Not set"}
-                    </div>
+                      <Edit3 className="w-3 h-3" />
+                      Editing
+                    </motion.div>
                   ) : (
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40 milky:text-gray-900/40" />
-                      <input
-                        type="text"
-                        value={formData.location}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            location: e.target.value,
-                          }))
-                        }
-                        placeholder="City, Country"
-                        className="w-full pl-10 pr-4 py-3 Input rounded-xl transition-colors"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-3 pt-4">
-                {!isEditing ? (
-                  <>
                     <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
-                      onClick={()=> navigate("/")}
-                      className="px-6 py-3 bg-white/5 milky:bg-gray-900/5 hover:bg-white/10 milky:hover:bg-gray-900/10  rounded-xl transition-all duration-300 flex items-center gap-2 border border-white/10 milky:border-gray-900/10"
-                    >
-                      <Home className="w-4 h-4" />
-                      Home
-                    </motion.button>
-
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      key="edit-btn"
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.85 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       type="button"
                       onClick={() => setIsEditing(true)}
-                      className="px-6 py-3 btn-primary-theme rounded-xl  transition-all duration-300 flex items-center gap-2"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full btn-primary-theme text-xs font-semibold shadow-lg cursor-pointer"
                     >
-                      <Edit3 className="w-4 h-4" />
+                      <Edit3 className="w-3 h-3" />
                       Edit Profile
                     </motion.button>
-                  </>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* ── Avatar (overlapping banner) ── */}
+            <div className="px-6 sm:px-8 -mt-14 mb-4 flex items-end gap-4">
+              <div
+                className="relative flex-shrink-0"
+                onMouseEnter={() => setAvatarHover(true)}
+                onMouseLeave={() => setAvatarHover(false)}
+              >
+                <div className="w-28 h-28 rounded-full active p-1 shadow-2xl">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
+                    {formData.profilePic ? (
+                      <img
+                        src={formData.profilePic}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        onError={(e) => (e.target.src = "/default-avatar.png")}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Camera className="w-8 h-8 text-white/30" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Shuffle overlay in edit mode */}
+                {isEditing && (
+                  <AnimatePresence>
+                    {avatarHover && (
+                      <motion.button
+                        type="button"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={handleRandomAvatar}
+                        className="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/55 cursor-pointer"
+                      >
+                        <Shuffle className="w-6 h-6 text-white mb-0.5" />
+                        <span className="text-white text-[10px] font-semibold">Shuffle</span>
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                )}
+
+                {/* Online dot */}
+                <span className="absolute bottom-1.5 right-1.5 w-4 h-4 bg-emerald-400 rounded-full border-2 border-gray-900/30 shadow-sm" />
+              </div>
+
+              {/* Name + meta (view mode only) */}
+              {!isEditing && (
+                <div className="pb-2">
+                  <h1 className="text-xl font-bold leading-tight">{user?.name || "—"}</h1>
+                  {user?.location && (
+                    <p className="flex items-center gap-1 text-sm text-white/50 milky:text-gray-500 mt-0.5">
+                      <MapPin className="w-3.5 h-3.5" />
+                      {user.location}
+                    </p>
+                  )}
+                  {user?.nativeLang && (
+                    <span className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold active rounded-full">
+                      <Globe className="w-3 h-3" />
+                      {user.nativeLang}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Random avatar button (edit mode) */}
+              {isEditing && (
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  type="button"
+                  onClick={handleRandomAvatar}
+                  className="mb-2 flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-xl
+                    bg-white/8 hover:bg-white/15 milky:bg-gray-100 milky:hover:bg-gray-200
+                    border border-white/10 milky:border-gray-200
+                    text-white/70 milky:text-gray-600 hover:text-white milky:hover:text-gray-800
+                    transition-all duration-200 cursor-pointer"
+                >
+                  <Shuffle className="w-3.5 h-3.5" />
+                  Random avatar
+                </motion.button>
+              )}
+            </div>
+
+            {/* ── Fields ── */}
+            <div className="px-6 sm:px-8 pb-8 space-y-6">
+              {/* Divider */}
+              <div className="h-px bg-white/8 milky:bg-gray-100" />
+
+              {/* Name */}
+              <Field icon={User} label="Full Name">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                    placeholder="Your full name"
+                    className="w-full px-4 py-2.5 Input rounded-xl text-sm"
+                  />
                 ) : (
-                  <>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                  <DisplayValue value={user?.name} placeholder="Not set" />
+                )}
+              </Field>
+
+              {/* Email (read-only always) */}
+              <Field icon={Mail} label="Email">
+                <p className="text-sm font-medium text-white/70 milky:text-gray-600">{user?.email}</p>
+              </Field>
+
+              {/* Bio */}
+              <Field icon={FileText} label="Bio">
+                {isEditing ? (
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => setFormData((p) => ({ ...p, bio: e.target.value }))}
+                    placeholder="Tell others about yourself…"
+                    rows={3}
+                    className="w-full px-4 py-2.5 Input rounded-xl text-sm resize-none"
+                  />
+                ) : (
+                  <DisplayValue value={user?.bio} placeholder="No bio yet" multiline />
+                )}
+              </Field>
+
+              {/* Native Language */}
+              <Field icon={Languages} label="Native Language">
+                {isEditing ? (
+                  <select
+                    value={formData.nativeLang}
+                    onChange={(e) => setFormData((p) => ({ ...p, nativeLang: e.target.value }))}
+                    className="w-full px-4 py-2.5 Input rounded-xl text-sm"
+                  >
+                    <option value="" className="bg-gray-800 milky:bg-white">Select a language</option>
+                    {LANGUAGES.map((lang) => (
+                      <option key={lang} value={lang.toLowerCase()} className="bg-gray-800 milky:bg-white capitalize">
+                        {lang}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <DisplayValue value={user?.nativeLang} placeholder="Not set" />
+                )}
+              </Field>
+
+              {/* Location */}
+              <Field icon={MapPin} label="Location">
+                {isEditing ? (
+                  <div className="relative">
+                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 milky:text-gray-400" />
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => setFormData((p) => ({ ...p, location: e.target.value }))}
+                      placeholder="City, Country"
+                      className="w-full pl-10 pr-4 py-2.5 Input rounded-xl text-sm"
+                    />
+                  </div>
+                ) : (
+                  <DisplayValue value={user?.location} placeholder="Not set" />
+                )}
+              </Field>
+
+              {/* ── Action buttons (edit mode) ── */}
+              <AnimatePresence>
+                {isEditing && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    className="flex items-center justify-end gap-3 pt-2"
+                  >
+                    <button
                       type="button"
                       onClick={handleCancel}
-                      className="px-6 py-3 bg-white/5 milky:bg-gray-900/5 hover:bg-white/10 milky:hover:bg-gray-900/10 text-white/80 milky:text-gray-900/80 rounded-xl transition-all duration-300 flex items-center gap-2 border border-white/10 milky:border-gray-900/10"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
+                        bg-white/5 milky:bg-gray-100 hover:bg-white/10 milky:hover:bg-gray-200
+                        border border-white/10 milky:border-gray-200
+                        text-white/70 milky:text-gray-600 transition-all duration-200 cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                       Cancel
-                    </motion.button>
+                    </button>
 
                     <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={hasChanges && !isSaving ? { scale: 1.03 } : {}}
+                      whileTap={hasChanges && !isSaving ? { scale: 0.97 } : {}}
                       type="submit"
                       disabled={!hasChanges || isSaving}
-                      className={`px-6 py-3 rounded-xl transition-all duration-300 flex items-center gap-2
-                        ${
-                          hasChanges && !isSaving
-                            ? "btn-primary-theme "
-                            : "bg-white/5 milky:bg-gray-900/5 text-white/40 milky:text-gray-900/40 cursor-not-allowed"
+                      className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+                        transition-all duration-200 cursor-pointer
+                        ${hasChanges && !isSaving
+                          ? "btn-primary-theme shadow-lg"
+                          : "bg-white/5 milky:bg-gray-100 text-white/30 milky:text-gray-400 cursor-not-allowed"
                         }`}
                     >
                       {isSaving ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Saving...
-                        </>
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</>
+                      ) : hasChanges ? (
+                        <><Save className="w-4 h-4" /> Save Changes</>
                       ) : (
-                        <>
-                          <Save className="w-4 h-4" />
-                          Save Changes
-                        </>
+                        <><CheckCircle2 className="w-4 h-4" /> Up to date</>
                       )}
                     </motion.button>
-                  </>
+                  </motion.div>
                 )}
-              </div>
-            </form>
+              </AnimatePresence>
+            </div>
           </div>
-        </div>
+        </form>
       </motion.div>
     </div>
   );

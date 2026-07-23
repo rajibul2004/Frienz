@@ -51,13 +51,23 @@ export const connectionApis = {
     // Accept friend request
     acceptFriendRequest: async (requestId) => {
         try {
-            const response = await axiosInstance.put(`/connections/accept-request/${requestId}`); // Added missing /
+            const response = await axiosInstance.put(`/connections/accept-request/${requestId}`);
             return response.data;
         } catch (error) {
             throw error;
         }
-    }
-    ,
+    },
+
+    // Reject friend request
+    rejectFriendRequest: async (requestId) => {
+        try {
+            const response = await axiosInstance.delete(`/connections/reject-request/${requestId}`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
     // Remove friend    
     removeFriend: async (friendId) => {
         try {
