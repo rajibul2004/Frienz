@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import EmojiPicker from "emoji-picker-react";
 import {
   Check,
   CheckCheck,
@@ -16,6 +17,7 @@ import toast from "react-hot-toast";
 const MessageBubble = ({ message, isOwn, onRetry }) => {
   const [showActions, setShowActions] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
+  const [showFullPicker, setShowFullPicker] = useState(false);
   const [reaction, setReaction] = useState(null);
 
   const handleRetry = () => {
@@ -223,6 +225,38 @@ const MessageBubble = ({ message, isOwn, onRetry }) => {
                           {emoji}
                         </button>
                       ))}
+                      <button
+                        onClick={() => setShowFullPicker(!showFullPicker)}
+                        className="p-1 hover:bg-secondary-theme rounded-full transition-colors text-lg flex items-center justify-center w-8 h-8 text-white/50"
+                      >
+                        +
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {showFullPicker && showReactions && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      className={`absolute bottom-full mb-14 z-[70] shadow-2xl ${
+                        isOwn ? "right-0" : "left-0"
+                      }`}
+                    >
+                      <EmojiPicker
+                        onEmojiClick={(emojiData) => {
+                          setShowFullPicker(false);
+                          setShowReactions(false);
+                          setReaction(emojiData.emoji);
+                          if (message.onReact) {
+                            message.onReact(message._id, emojiData.emoji);
+                          }
+                          toast.success(`Reacted with ${emojiData.emoji}`);
+                        }}
+                        theme="auto"
+                      />
                     </motion.div>
                   )}
                 </AnimatePresence>

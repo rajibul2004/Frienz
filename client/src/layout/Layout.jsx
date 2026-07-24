@@ -1,7 +1,12 @@
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
-const Layout = ({ children, showSidebar = true, showNavbar = true }) => {
+const Layout = ({
+  children,
+  showSidebar = true,
+  showNavbar = true,
+  showFooter = true,
+}) => {
   return (
     <div className="min-h-screen flex flex-col">
       {showNavbar && <Navbar />}
@@ -21,9 +26,11 @@ const Layout = ({ children, showSidebar = true, showNavbar = true }) => {
             </div>
           </div>
 
-          <footer className="h-10 flex items-center justify-center text-white/20 milky:text-gray-400 text-xs border-t border-white/[0.06] milky:border-gray-200/60">
-            © 2025 Frienz. All rights reserved.
-          </footer>
+          {showFooter && (
+            <footer className="h-10 flex items-center justify-center text-white/20 milky:text-gray-400 text-xs border-t border-white/[0.06] milky:border-gray-200/60">
+              © 2025 Frienz. All rights reserved.
+            </footer>
+          )}
         </main>
       </div>
     </div>

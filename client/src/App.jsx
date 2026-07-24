@@ -111,7 +111,7 @@ function App() {
           path="/chat/:id"
           element={
             <PrivateRoute>
-              <Layout showSidebar={false}>
+              <Layout showSidebar={false} showNavbar={false} showFooter={false}>
                 <Chat />
               </Layout>
             </PrivateRoute>

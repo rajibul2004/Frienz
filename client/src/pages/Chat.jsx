@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import EmojiPicker from "emoji-picker-react";
 import {
   ArrowLeft,
   Phone,
@@ -72,6 +73,7 @@ const Chat = () => {
   const [showInfo, setShowInfo] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showPinned, setShowPinned] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const [inputMessage, setInputMessage] = useState("");
 
@@ -538,9 +540,30 @@ const Chat = () => {
 
           {/* Emoji Button */}
           <div className="relative">
-            <button className="p-2 md:p-2.5 rounded-full hover:bg-white/10 milky:hover:bg-gray-100 text-white/70 milky:text-gray-500 transition-colors">
+            <button
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="p-2 md:p-2.5 rounded-full hover:bg-white/10 milky:hover:bg-gray-100 text-white/70 milky:text-gray-500 transition-colors"
+            >
               <Smile className="size-5" />
             </button>
+
+            <AnimatePresence>
+              {showEmojiPicker && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="absolute bottom-[calc(100%+1rem)] left-0 md:-left-4 z-50 shadow-2xl"
+                >
+                  <EmojiPicker
+                    onEmojiClick={(emojiData) => {
+                      setInputMessage((prev) => prev + emojiData.emoji);
+                    }}
+                    theme="auto"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Message Input */}
