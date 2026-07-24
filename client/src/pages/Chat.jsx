@@ -165,20 +165,22 @@ const Chat = () => {
   const groupedMessages = groupMessagesByDate(messages);
 
   return (
-    <div className=" flex flex-col justify-between bg-white/10 milky:bg-gray-900/10 overflow-hidden  lg:max-w-4xl mx-auto h-[calc(100dvh-4rem-3rem)] z-10">
+    <div className="flex flex-col bg-white/5 milky:bg-gray-50/50 md:rounded-3xl md:shadow-2xl md:border md:border-white/10 milky:md:border-gray-200/50 overflow-hidden lg:max-w-4xl mx-auto h-[100dvh] md:h-[calc(100dvh-4rem)] md:my-4 z-10 w-full relative">
+      {/* Subtle background gradient overlay */}
+      <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/20 milky:to-gray-200/50 pointer-events-none z-0" />
       {/* Header */}
-      <div className="flex items-center justify-between px-2 md:px-4 py-1.5 md:py-3 bg-white/20 milky:bg-gray-900/20 backdrop-blur-md border-b border-white/30 milky:border-gray-900/30 shadow-sm h-fit">
+      <div className="flex items-center justify-between px-2 md:px-5 py-2 md:py-3 bg-white/10 milky:bg-white/70 backdrop-blur-2xl border-b border-white/10 milky:border-gray-200/60 shadow-sm h-fit z-20">
         {/* Left Section */}
         <div className="flex items-center gap-1 md:gap-3">
           <button
             onClick={() => navigate("/")}
-            className="p-2 hover:bg-secondary-theme rounded-xl transition-colors hidden md:inline"
+            className="p-1.5 md:p-2 hover:bg-secondary-theme rounded-xl transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
 
           <div className="relative">
-            <div className="size-8 md:size-10 rounded-full active p-0.5">
+            <div className="size-9 md:size-11 rounded-full active p-[2px] shadow-md bg-linear-to-br from-primary-theme to-accent">
               <img
                 src={recipient?.profilePic || "/default-avatar.png"}
                 alt={recipient?.name}
@@ -186,7 +188,9 @@ const Chat = () => {
               />
             </div>
             {isOnline && (
-              <div className="absolute bottom-0 right-0 size-2.5 bg-green-500 rounded-full border-2 border-card-theme animate-pulse" />
+              <div className="absolute bottom-0 right-0 size-3.5 bg-green-500 rounded-full border-2 border-gray-900 milky:border-white shadow-sm">
+                <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-75"></div>
+              </div>
             )}
           </div>
 
@@ -203,7 +207,7 @@ const Chat = () => {
           {/* Search Button */}
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className="p-1 md:p-2 rounded-full"
+            className="p-1 md:p-2 rounded-full hidden md:flex"
           >
             <Search className="size-5" />
           </button>
@@ -211,7 +215,7 @@ const Chat = () => {
           {/* Info Button */}
           <button
             onClick={() => setShowInfo(!showInfo)}
-            className="p-1 md:p-2 rounded-full"
+            className="p-1 md:p-2 rounded-full hidden md:flex"
           >
             <Info className="size-5" />
           </button>
@@ -219,7 +223,7 @@ const Chat = () => {
           {/* Pinned Messages Button */}
           <button
             onClick={() => setShowPinned(!showPinned)}
-            className="p-1 md:p-2 rounded-full relative"
+            className="p-1 md:p-2 rounded-full relative hidden md:flex"
           >
             <Pin className="size-5" />
             {/* {pinnedMessages.length > 0 && (
@@ -238,7 +242,7 @@ const Chat = () => {
           {/* Video Call Button */}
           <button
             onClick={() => handleStartCall("video")}
-            className="p-1 md:p-2 rounded-full"
+            className="p-1 md:p-2 rounded-full hidden md:flex"
           >
             <Video className="size-5" />
           </button>
@@ -263,25 +267,42 @@ const Chat = () => {
                     initial={{ opacity: 0, scale: 0.95, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    className="fixed right-4 top-10 md:top-14 md:right-8 w-56 active rounded-xl shadow-2xl z-50 overflow-hidden"
+                    className="absolute right-2 top-full mt-2 w-56 bg-gray-900/90 milky:bg-white/95 backdrop-blur-2xl border border-white/10 milky:border-gray-200/50 rounded-2xl shadow-2xl z-50 overflow-hidden"
                   >
                     <button
                       onClick={() => navigate(`/profile/${recipientId}`)}
-                      className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 cursor-pointer"
+                      className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 cursor-pointer hover:bg-white/10 milky:hover:bg-gray-100 transition-colors text-white milky:text-gray-800"
                     >
-                      <User className="w-4 h-4" />
+                      <User className="w-4 h-4 text-primary-theme" />
                       View Profile
                     </button>
-                    <button className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 cursor-pointer">
-                      <Star className="w-4 h-4" />
+                    <button className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 cursor-pointer hover:bg-white/10 milky:hover:bg-gray-100 transition-colors text-white milky:text-gray-800">
+                      <Star className="w-4 h-4 text-yellow-500" />
                       Favorite
                     </button>
-                    <button className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 cursor-pointer">
-                      <Bell className="w-4 h-4" />
+                    <button className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 cursor-pointer hover:bg-white/10 milky:hover:bg-gray-100 transition-colors text-white milky:text-gray-800">
+                      <Bell className="w-4 h-4 text-orange-400" />
                       Mute Notifications
                     </button>
-                    <button className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 cursor-pointer">
-                      <Shield className="w-4 h-4" />
+                    {/* Mobile Only Menu Items */}
+                    <button onClick={() => setShowSearch(true)} className="w-full px-4 py-3 text-left text-sm flex md:hidden items-center gap-2 cursor-pointer">
+                      <Search className="w-4 h-4" />
+                      Search Messages
+                    </button>
+                    <button onClick={() => setShowInfo(true)} className="w-full px-4 py-3 text-left text-sm flex md:hidden items-center gap-2 cursor-pointer">
+                      <Info className="w-4 h-4" />
+                      Chat Info
+                    </button>
+                    <button onClick={() => setShowPinned(true)} className="w-full px-4 py-3 text-left text-sm flex md:hidden items-center gap-2 cursor-pointer">
+                      <Pin className="w-4 h-4" />
+                      Pinned Messages
+                    </button>
+                    <button onClick={() => handleStartCall("video")} className="w-full px-4 py-3 text-left text-sm flex md:hidden items-center gap-2 cursor-pointer">
+                      <Video className="w-4 h-4" />
+                      Video Call
+                    </button>
+                    <button className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 cursor-pointer hover:bg-white/10 milky:hover:bg-gray-100 transition-colors text-white milky:text-gray-800">
+                      <Shield className="w-4 h-4 text-gray-400" />
                       Block User
                     </button>
                     <div className="border-t border-gray-400/40 my-1" />
@@ -303,18 +324,18 @@ const Chat = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="border-b border-white/30 milky:border-gray-900/30"
+            className="border-b border-white/10 milky:border-gray-200/50 bg-black/20 milky:bg-white/40 backdrop-blur-md relative z-10"
           >
-            <div className="p-3 flex gap-2">
+            <div className="p-3 md:p-4 flex gap-2">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50 milky:text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search messages..."
-                  className="w-full pl-9 pr-4 py-2  border border-white/30 milky:border-gray-900/30 rounded-xl placeholder-white/60 milky:placeholder-gray-900/60 focus:outline-none focus:border-white milky:focus:border-gray-900"
+                  className="w-full pl-9 pr-4 py-2 bg-white/10 milky:bg-white border border-white/20 milky:border-gray-200 rounded-xl placeholder-white/50 milky:placeholder-gray-400 focus:outline-none focus:border-primary-theme focus:ring-1 focus:ring-primary-theme transition-all text-sm"
                 />
               </div>
-              <button className="px-4 py-2 btn-primary-theme rounded-xl  transition-colors">
+              <button className="px-4 py-2 bg-linear-to-br from-primary-theme to-accent text-white rounded-xl shadow-md hover:shadow-lg transition-all text-sm font-medium">
                 Search
               </button>
             </div>
@@ -325,7 +346,7 @@ const Chat = () => {
       <div className="  flex flex-col relative flex-1 overflow-hidden">
         <div
           ref={messagesContainerRef}
-          className="flex flex-col overflow-y-auto p-4 space-y-4 no-scrollbar size-full"
+          className="flex flex-col overflow-y-auto p-4 pb-24 md:pb-28 space-y-4 no-scrollbar size-full z-10"
         >
           {messagesLoading? (
             <div className="flex items-center justify-center size-full">
@@ -377,130 +398,128 @@ const Chat = () => {
           )}
           <div ref={messagesEndRef} />
         </div>
-        {/* Pinned Messages Sidebar */}
+        {/* Pinned Messages Modal */}
         <AnimatePresence>
           {showPinned && (
-            <motion.div
-              initial={{ x: 300 }}
-              animate={{ x: 0 }}
-              exit={{ x: 300 }}
-              className="absolute right-0 top-0 bottom-0 w-80 active border-l border-white/10 shadow-xl z-30 flex flex-col"
-            >
-              <div className="flex items-center justify-between p-4 border-b border-gray-900/30 milky:border-white/30">
-                <h3 className="font-semibold flex items-center gap-2 milky:text-gray-900 text-white">
-                  <Pin className="w-4 h-4" />
-                  Pinned Messages
-                </h3>
-                <button
-                  onClick={() => setShowPinned(false)}
-                  className="p-1 hover:bg-secondary-theme rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-primary-theme" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                {/* Pinned Messages */}
-              </div>
-            </motion.div>
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowPinned(false)}
+                className="absolute inset-0 z-40 bg-black/40 milky:bg-white/40 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm max-h-[80%] bg-gray-900/90 milky:bg-white/95 backdrop-blur-2xl border border-white/20 milky:border-gray-200/50 shadow-2xl z-50 flex flex-col rounded-3xl overflow-hidden"
+              >
+                <div className="flex items-center justify-between p-5 border-b border-white/10 milky:border-gray-200/50">
+                  <h3 className="font-bold flex items-center gap-2 milky:text-gray-900 text-white text-lg">
+                    <Pin className="w-5 h-5 text-primary-theme" />
+                    Pinned Messages
+                  </h3>
+                  <button
+                    onClick={() => setShowPinned(false)}
+                    className="p-1.5 hover:bg-white/10 milky:hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {/* Pinned Messages Content */}
+                  <div className="text-center text-white/50 milky:text-gray-500 py-10">
+                    No pinned messages yet.
+                  </div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
-        {/* Chat Info Sidebar */}
+        {/* Chat Info Modal */}
         <AnimatePresence>
           {showInfo && (
-            <motion.div
-              initial={{ x: 300 }}
-              animate={{ x: 0 }}
-              exit={{ x: 300 }}
-              className="absolute right-0 top-0 bottom-0 w-80 active border-l border-white/10 shadow-xl z-30 flex flex-col"
-            >
-              <div className="flex items-center justify-between p-4 border-b border-gray-900/30 milky:border-white/30">
-                <h3 className="font-semibold milky:text-gray-900 text-white">
-                  Chat Info
-                </h3>
-                <button
-                  onClick={() => setShowInfo(false)}
-                  className="p-1 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4 ">
-                {/* User Info */}
-                <div className="text-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-linear-to-r from-gray-400 to-slate-400 p-1 mx-auto mb-3">
-                    <img
-                      src={recipient?.profilePic || "/default-avatar.png"}
-                      alt={recipient?.name}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  </div>
-                  <h3 className="text-xl font-bold">{recipient?.name}</h3>
-                  <p className="text-white/60 milky:text-gray-900/60 text-sm">
-                    {recipient?.bio || "No bio yet"}
-                  </p>
-                </div>
-
-                {/* Details */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3 p-3">
-                    <MapPin className="w-4 h-4 text-white/60 milky:text-gray-900/60" />
-                    <div>
-                      <p className="text-xs text-white/60 milky:text-gray-900/60">
-                        Location
-                      </p>
-                      <p className="text-sm ">
-                        {recipient?.location || "Not specified"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 p-3">
-                    <Languages className="w-4 h-4 text-white/60 milky:text-gray-900/60" />
-                    <div>
-                      <p className="text-xs text-white/60 milky:text-gray-900/60">
-                        Language
-                      </p>
-                      <p className="text-sm ">
-                        {recipient?.nativeLang || "Not specified"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 p-3 ">
-                    <Calendar className="w-4 h-4 text-white/60 milky:text-gray-900/60" />
-                    <div>
-                      <p className="text-xs text-white/60 milky:text-gray-900/60">
-                        Member Since
-                      </p>
-                      <p className="text-sm text-primary-theme">
-                        {recipient?.memberSince}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="mt-6 space-y-2">
-                  <button className="w-full py-2 bg-gray-400/60 rounded-xl">
-                    Share Contact
-                  </button>
-                  <button className="w-full py-2 bg-red-400/20 text-red-500 rounded-xl hover:bg-red-400/40 transition-colors cursor-pointer">
-                    Clear Chat History
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowInfo(false)}
+                className="absolute inset-0 z-40 bg-black/40 milky:bg-white/40 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-gray-900/90 milky:bg-white/95 backdrop-blur-2xl border border-white/20 milky:border-gray-200/50 shadow-2xl z-50 flex flex-col rounded-3xl overflow-hidden"
+              >
+                {/* Header background color/gradient */}
+                <div className="h-32 bg-linear-to-br from-primary-theme/80 to-accent/80 relative">
+                  <button
+                    onClick={() => setShowInfo(false)}
+                    className="absolute top-4 right-4 p-1.5 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
+                  >
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
-              </div>
-            </motion.div>
+
+                <div className="flex-1 px-6 pb-6 pt-0 relative">
+                  {/* User Avatar overlapping header */}
+                  <div className="text-center -mt-12 mb-4">
+                    <div className="w-24 h-24 rounded-full bg-gray-900 milky:bg-white p-1.5 shadow-xl mx-auto relative">
+                      <img
+                        src={recipient?.profilePic || "/default-avatar.png"}
+                        alt={recipient?.name}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                      {isOnline && (
+                        <div className="absolute bottom-1 right-1 size-4 bg-green-500 rounded-full border-2 border-gray-900 milky:border-white shadow-sm"></div>
+                      )}
+                    </div>
+                    <h3 className="text-2xl font-bold mt-2 text-white milky:text-gray-900">{recipient?.name}</h3>
+                    <p className="text-white/60 milky:text-gray-500 text-sm mt-0.5">
+                      {recipient?.bio || "No bio yet"}
+                    </p>
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <div className="bg-white/5 milky:bg-gray-100/80 p-3 rounded-2xl flex flex-col items-center justify-center text-center">
+                      <MapPin className="w-5 h-5 text-primary-theme mb-1" />
+                      <p className="text-xs text-white/50 milky:text-gray-500">Location</p>
+                      <p className="text-sm font-medium text-white milky:text-gray-800 line-clamp-1">{recipient?.location || "N/A"}</p>
+                    </div>
+                    <div className="bg-white/5 milky:bg-gray-100/80 p-3 rounded-2xl flex flex-col items-center justify-center text-center">
+                      <Languages className="w-5 h-5 text-accent mb-1" />
+                      <p className="text-xs text-white/50 milky:text-gray-500">Language</p>
+                      <p className="text-sm font-medium text-white milky:text-gray-800 line-clamp-1">{recipient?.nativeLang || "N/A"}</p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="space-y-3">
+                    <button className="w-full py-3 bg-white/10 milky:bg-gray-100 hover:bg-white/20 milky:hover:bg-gray-200 border border-white/10 milky:border-gray-200 transition-colors rounded-xl font-medium text-sm flex justify-center items-center gap-2 text-white milky:text-gray-800">
+                      <User className="w-4 h-4" />
+                      View Full Profile
+                    </button>
+                    <button className="w-full py-3 bg-red-500/10 milky:bg-red-50 text-red-500 hover:bg-red-500/20 milky:hover:bg-red-100 transition-colors border border-red-500/20 milky:border-red-200 rounded-xl font-medium text-sm flex justify-center items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      Block & Clear History
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Input Area */}
-      <div className="border-t border-white/30 milky:border-gray-900/30 shadow-sm  bg-white/20 milky:bg-gray-900/20 backdrop-blur-md p-1.5 md:p-3 h-fit ">
-        <div className="flex items-center gap-1">
+      {/* Floating Input Area */}
+      <div className="absolute bottom-0 w-full p-2 md:p-4 z-20 bg-linear-to-t from-gray-900/80 milky:from-white/80 to-transparent pointer-events-none flex justify-center">
+        <div className="flex items-center gap-1 md:gap-2 bg-white/10 milky:bg-white/90 backdrop-blur-2xl border border-white/20 milky:border-gray-300 shadow-2xl rounded-3xl p-1 md:p-1.5 w-full max-w-3xl pointer-events-auto">
           {/* Attach Button */}
-          <button className="p-1 md:p-2 rounded-xl">
+          <button className="p-2 md:p-2.5 rounded-full hidden sm:flex hover:bg-white/10 milky:hover:bg-gray-100 text-white/70 milky:text-gray-500 transition-colors">
             <Paperclip className="size-5" />
           </button>
           <input
@@ -512,14 +531,14 @@ const Chat = () => {
           {/* Image Button */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-1 md:p-2 rounded-xl "
+            className="p-2 md:p-2.5 rounded-full hover:bg-white/10 milky:hover:bg-gray-100 text-white/70 milky:text-gray-500 transition-colors"
           >
             <ImageIcon className="size-5" />
           </button>
 
           {/* Emoji Button */}
           <div className="relative">
-            <button className="p-1 md:p-2  rounded-xl ">
+            <button className="p-2 md:p-2.5 rounded-full hover:bg-white/10 milky:hover:bg-gray-100 text-white/70 milky:text-gray-500 transition-colors">
               <Smile className="size-5" />
             </button>
           </div>
@@ -533,22 +552,23 @@ const Chat = () => {
               sendTyping?.();
             }}
             onKeyPress={handleKeyPress}
-            placeholder="Type a message..."
+            placeholder="Message..."
             rows={1}
-            className="flex-1 Input rounded-xl resize-none w-full max-h-18 md:max-h-32 px-2 md:px-2 py-2 no-scrollbar"
-            style={{ minHeight: "34px" }}
+            className="flex-1 bg-transparent text-white milky:text-gray-800 placeholder-white/50 milky:placeholder-gray-400 resize-none max-h-24 px-3 py-2.5 outline-none no-scrollbar text-sm md:text-base"
+            style={{ minHeight: "40px" }}
           />
 
-          {/* Voice / Send Button */}
-          <button
-            onClick={handleSendMessage}
-            className="p-1 md:p-2 rounded-full"
-          >
-            <Send className="size-5" />
+          {/* Voice Button */}
+          <button className="p-2 md:p-2.5 rounded-full text-white/70 milky:text-gray-500 hover:bg-white/10 milky:hover:bg-gray-100 transition-colors">
+            <Mic className="size-5" />
           </button>
 
-          <button className={`p-2 rounded-xl transition-colors animate-pulse`}>
-            <Mic className="size-5" />
+          {/* Send Button */}
+          <button
+            onClick={handleSendMessage}
+            className="p-2 md:p-2.5 rounded-full bg-linear-to-br from-primary-theme to-accent text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all active:scale-95"
+          >
+            <Send className="size-5 ml-0.5" />
           </button>
         </div>
       </div>

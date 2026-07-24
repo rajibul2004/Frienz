@@ -17,6 +17,20 @@ export const connectionHooks = {
         return { error, isAcceptPending: isPending, acceptMutation: mutateAsync }; // Renamed
     },
 
+    // Reject friend request
+    useRejectFR: () => {
+        const queryClient = useQueryClient();
+
+        const { mutateAsync, isPending, error } = useMutation({
+            mutationFn: connectionApis.rejectFriendRequest,
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["friend-requests"] });
+                // We might not strictly need to invalidate other queries on reject, but it's safe.
+            }
+        });
+        return { error, isRejectPending: isPending, rejectMutation: mutateAsync };
+    },
+
     // Send friend request
     useSendFR: () => {
         const queryClient = useQueryClient();

@@ -137,23 +137,21 @@ const sendFriendRequest = async (req, res) => {
         // Emit real-time socket event to recipient
         try {
             const io = getIO();
-            const recipientSockets = getOnlineUsers().get(recipientId);
-            if (recipientSockets && recipientSockets.size > 0) {
-                const payload = {
-                    type: 'friend_request',
-                    requestId: friendRequest._id,
-                    sender: {
-                        _id: currentUser._id,
-                        name: currentUser.name,
-                        profilePic: currentUser.profilePic,
-                        location: currentUser.location
-                    },
-                    createdAt: new Date().toISOString()
-                };
-                recipientSockets.forEach(socketId => {
-                    io.to(socketId).emit('friend-request-received', payload);
-                });
-            }
+            const payload = {
+                type: 'friend_request',
+                requestId: friendRequest._id,
+                sender: {
+                    _id: currentUser._id,
+                    name: currentUser.name,
+                    profilePic: currentUser.profilePic,
+                    location: currentUser.location
+                },
+                createdAt: new Date().toISOString()
+            };
+            
+            // Emit to all sockets in the user's room
+            io.to(`user:${recipientId}`).emit('friend-request-received', payload);
+            console.log(`[Socket] Emitted friend-request-received to room: user:${recipientId}`);
         } catch (socketErr) {
             console.error('Socket emission error (sendFriendRequest):', socketErr);
         }
@@ -233,22 +231,20 @@ const acceptFriendRequest = async (req, res) => {
         try {
             const io = getIO();
             const senderId = friendRequest.sender.toString();
-            const senderSockets = getOnlineUsers().get(senderId);
-            if (senderSockets && senderSockets.size > 0) {
-                const payload = {
-                    type: 'friend_accepted',
-                    requestId: requestId,
-                    acceptedBy: {
-                        _id: currentUser._id,
-                        name: currentUser.name,
-                        profilePic: currentUser.profilePic
-                    },
-                    createdAt: new Date().toISOString()
-                };
-                senderSockets.forEach(socketId => {
-                    io.to(socketId).emit('friend-request-accepted', payload);
-                });
-            }
+            const payload = {
+                type: 'friend_accepted',
+                requestId: requestId,
+                acceptedBy: {
+                    _id: currentUser._id,
+                    name: currentUser.name,
+                    profilePic: currentUser.profilePic
+                },
+                createdAt: new Date().toISOString()
+            };
+            
+            // Emit to all sockets in the sender's room
+            io.to(`user:${senderId}`).emit('friend-request-accepted', payload);
+            console.log(`[Socket] Emitted friend-request-accepted to room: user:${senderId}`);
         } catch (socketErr) {
             console.error('Socket emission error (acceptFriendRequest):', socketErr);
         }

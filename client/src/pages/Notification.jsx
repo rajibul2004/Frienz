@@ -52,7 +52,7 @@ const typeConfig = {
 // ─────────────────────────────────────────────
 // Friend Request Card (API data)
 // ─────────────────────────────────────────────
-const FriendRequestCard = ({ request, onAccept, isPending }) => (
+const FriendRequestCard = ({ request, onAccept, onReject, isAcceptPending, isRejectPending }) => (
   <motion.div
     initial={{ opacity: 0, y: 16 }}
     animate={{ opacity: 1, y: 0 }}
@@ -108,23 +108,40 @@ const FriendRequestCard = ({ request, onAccept, isPending }) => (
           )}
         </div>
 
-        {/* Accept button */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onAccept(request._id)}
-          disabled={isPending}
-          className="flex-shrink-0 px-3 py-1.5 btn-primary-theme text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-md"
-        >
-          {isPending ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <>
-              <CheckCircle className="w-3.5 h-3.5" />
-              Accept
-            </>
-          )}
-        </motion.button>
+        <div className="flex items-center gap-2 mt-3">
+          {/* Reject button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onReject(request._id)}
+            disabled={isAcceptPending || isRejectPending}
+            className="flex-1 px-3 py-1.5 bg-white/10 hover:bg-white/20 milky:bg-gray-200 milky:hover:bg-gray-300 text-white milky:text-gray-800 text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-colors"
+          >
+            {isRejectPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              "Reject"
+            )}
+          </motion.button>
+          
+          {/* Accept button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onAccept(request._id)}
+            disabled={isAcceptPending || isRejectPending}
+            className="flex-1 px-3 py-1.5 btn-primary-theme text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 shadow-md"
+          >
+            {isAcceptPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <>
+                <CheckCircle className="w-3.5 h-3.5" />
+                Accept
+              </>
+            )}
+          </motion.button>
+        </div>
       </div>
     </div>
   </motion.div>
@@ -232,6 +249,7 @@ const Notification = () => {
 
   const { isLoading, requests } = connectionHooks.useGetIncomingFR();
   const { isAcceptPending, acceptMutation } = connectionHooks.useAcceptFR();
+  const { isRejectPending, rejectMutation } = connectionHooks.useRejectFR();
   const { notifications, markAllRead } = useSocket();
 
   const incomingRequests = requests?.incoming?.requests || [];
@@ -244,6 +262,10 @@ const Notification = () => {
 
   const handleAccept = (requestId) => {
     acceptMutation(requestId);
+  };
+
+  const handleReject = (requestId) => {
+    rejectMutation(requestId);
   };
 
   return (
@@ -317,7 +339,9 @@ const Notification = () => {
                       key={request._id}
                       request={request}
                       onAccept={handleAccept}
-                      isPending={isAcceptPending}
+                      onReject={handleReject}
+                      isAcceptPending={isAcceptPending}
+                      isRejectPending={isRejectPending}
                     />
                   ))}
                 </AnimatePresence>

@@ -112,11 +112,11 @@ const MessageBubble = ({ message, isOwn, onRetry }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 15, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.2 }}
-      className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-2 group`}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-3 group`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
       onClick={() => setShowActions((prev) => !prev)}
@@ -124,10 +124,12 @@ const MessageBubble = ({ message, isOwn, onRetry }) => {
       <div className="relative max-w-[70%]">
         {/* Main Message Bubble */}
         <div
-          className={`relative rounded-2xl px-3 py-1 shadow-sm transition-all ${
+          className={`relative px-4 py-2 shadow-md transition-all ${
             isOwn
-              ? `active rounded-br-sm ${message.failed ? "opacity-70" : ""}`
-              : "bg-white/5 milky:bg-gray-400/60 border border-white/40 milky:border-gray-900/40 rounded-bl-sm"
+              ? `bg-linear-to-br from-primary-theme to-accent text-white rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-sm ${
+                  message.failed ? "opacity-70" : ""
+                }`
+              : "bg-white/10 milky:bg-white/80 backdrop-blur-md border border-white/20 milky:border-gray-200 rounded-tl-2xl rounded-tr-2xl rounded-br-2xl rounded-bl-sm"
           }`}
         >
           {/* Sender Name (for group chats) */}
@@ -142,11 +144,11 @@ const MessageBubble = ({ message, isOwn, onRetry }) => {
 
           {/* Message Metadata */}
           <div
-            className={`flex items-center gap-0.5 mt-0.5 ${
-              isOwn ? "justify-end" : "justify-start"
+            className={`flex items-center gap-1 mt-1 ${
+              isOwn ? "justify-end text-white/80" : "justify-start text-white/60 milky:text-gray-500"
             }`}
           >
-            <span className="text-[8px] opacity-70">
+            <span className="text-[10px] font-medium tracking-wide">
               {formatTime(message.createdAt)}
             </span>
             {getStatusIcon()}
@@ -160,8 +162,8 @@ const MessageBubble = ({ message, isOwn, onRetry }) => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className={`absolute top-1/5 -translate-y-1/5 flex gap-1 ${
-                isOwn ? "-left-30" : "-right-22"
+              className={`absolute -top-10 flex gap-1 z-50 p-1 bg-card-theme border border-white/20 milky:border-gray-200 rounded-full shadow-lg ${
+                isOwn ? "right-0" : "left-0"
               }`}
             >
               {/* Copy Button */}
@@ -170,7 +172,7 @@ const MessageBubble = ({ message, isOwn, onRetry }) => {
                 className="p-1.5 bg-card-theme border border-theme rounded-full cursor-pointer transition-colors hover:bg-secondary-theme"
                 title="Copy"
               >
-                <Copy className="w-3 h-3" />
+                <Copy className="w-4 h-4" />
               </button>
 
               {/* Reaction Button */}
@@ -180,7 +182,7 @@ const MessageBubble = ({ message, isOwn, onRetry }) => {
                   className="p-1.5 bg-card-theme border border-theme rounded-full cursor-pointer transition-colors hover:bg-secondary-theme"
                   title="React"
                 >
-                  <Smile className="w-3 h-3" />
+                  <Smile className="w-4 h-4" />
                 </button>
 
                 {/* Reactions Popup */}
@@ -190,7 +192,7 @@ const MessageBubble = ({ message, isOwn, onRetry }) => {
                       initial={{ opacity: 0, scale: 0.8, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                      className={`absolute bottom-full mb-2 flex gap-1 p-1 bg-card-theme border border-theme rounded-full shadow-lg ${
+                      className={`absolute bottom-full mb-2 flex gap-1 p-1 bg-card-theme border border-theme rounded-full shadow-xl z-[60] overflow-x-auto max-w-[80vw] no-scrollbar ${
                         isOwn ? "right-0" : "left-0"
                       }`}
                     >
@@ -232,7 +234,7 @@ const MessageBubble = ({ message, isOwn, onRetry }) => {
                   className="p-1.5 bg-card-theme border border-theme rounded-full cursor-pointer transition-colors hover:bg-error/10 hover:border-error/30"
                   title="Delete"
                 >
-                  <Trash2 className="w-3 h-3 text-error" />
+                  <Trash2 className="w-4 h-4 text-error" />
                 </button>
               )}
             </motion.div>
